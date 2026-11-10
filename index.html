@@ -4,139 +4,208 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Draugų planai</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='3' y='7' width='42' height='38' rx='10' fill='%23ff6b4a'/%3E%3Crect x='13' y='2' width='5' height='11' rx='2.5' fill='%231d2333'/%3E%3Crect x='30' y='2' width='5' height='11' rx='2.5' fill='%231d2333'/%3E%3Ccircle cx='19' cy='28' r='9' fill='%23ffd23f'/%3E%3Ccircle cx='29' cy='28' r='9' fill='%2322b8a6' fill-opacity='.9'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap">
 <style>
-/* Layout: a week board — seven day columns on wide screens, a stacked day list on phones.
-   Solid cards are plans; dashed amber cards are free time someone wants to fill. */
+/* Layout: month grid by default (week view on toggle); selected day's agenda under the grid.
+   Colour = activity category; dashed amber = free time; grey = private. */
 :root {
-  --bg: #eef1f4;
+  --bg: #f3f4f8;
   --surface: #ffffff;
-  --ink: #18202b;
-  --muted: #5d6877;
-  --line: #d6dce4;
-  --plan: #0d7a6b;
-  --plan-soft: #dcf1ec;
-  --open: #b46a00;
-  --open-soft: #fff1d9;
-  --today: #2f4fd8;
-  --danger: #b3261e;
-  --priv: #5b5f73;
-  --priv-soft: #e6e7ee;
+  --ink: #1d2333;
+  --muted: #626b80;
+  --line: #dde1ea;
+  --today: #ff6b4a;
+  --brand-a: #ff6b4a;
+  --brand-b: #ffd23f;
+  --brand-c: #22b8a6;
+  --open: #e08a00;
+  --priv: #6b7088;
+  --danger: #c92a2a;
+  --c-sport: #f76707;
+  --c-film: #7048e8;
+  --c-music: #e64980;
+  --c-food: #2f9e44;
+  --c-out: #1c7ed6;
+  --c-other: #0c8599;
+  --tint: 14%;
   --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #11151b; --surface: #1a2029; --ink: #e8ecf1; --muted: #9aa5b3; --line: #2d3541;
-    --plan: #4cc7b2; --plan-soft: #15352f; --open: #f2b24a; --open-soft: #3a2b12;
-    --today: #8ea2ff; --danger: #ff8a80; --priv: #b4b8cc; --priv-soft: #262a35; color-scheme: dark;
+  :root {
+    --bg: #12151d; --surface: #1b2030; --ink: #eef0f6; --muted: #9aa2b8; --line: #2c3346;
+    --open: #ffc04d; --priv: #a9aec4; --danger: #ff8787;
+    --c-sport: #ff922b; --c-film: #9775fa; --c-music: #f783ac; --c-food: #51cf66; --c-out: #4dabf7; --c-other: #3bc9db;
+    --tint: 22%; color-scheme: dark;
   }
-}
-:root[data-theme="dark"] {
-  --bg: #11151b; --surface: #1a2029; --ink: #e8ecf1; --muted: #9aa5b3; --line: #2d3541;
-  --plan: #4cc7b2; --plan-soft: #15352f; --open: #f2b24a; --open-soft: #3a2b12;
-  --today: #8ea2ff; --danger: #ff8a80; --priv: #b4b8cc; --priv-soft: #262a35; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html { padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
 [hidden] { display: none !important; }
 img { max-width: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45; }
-.wrap { max-width: 1280px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
-button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--today); outline-offset: 2px; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 18px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--brand-c); outline-offset: 2px; }
 
-header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
-h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 36px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
-.sub { color: var(--muted); margin: 4px 0 0; }
-.nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.range { font-family: var(--display); font-weight: 500; font-size: 17px; min-width: 150px; text-align: center; }
-.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; }
+/* header */
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { width: 46px; height: 46px; flex: none; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 3.6vw, 32px); line-height: 1; margin: 0; letter-spacing: -0.02em; }
+h1 .dot { color: var(--brand-a); }
+.sub { color: var(--muted); margin: 3px 0 0; font-size: 13px; }
+.acts-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 7px 12px; }
 .btn:hover { border-color: var(--muted); }
-.btn.icon { padding: 7px 10px; line-height: 1; }
-.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }
+.btn.primary { background: var(--brand-a); color: #fff; border-color: var(--brand-a); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.05); }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.nav { display: flex; align-items: center; gap: 6px; }
+.nav .btn { padding: 6px 11px; }
+.period { font-family: var(--display); font-weight: 700; font-size: 20px; min-width: 190px; text-align: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: var(--surface); }
+.seg button { border: none; background: none; padding: 6px 12px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
 .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 10px 4px 4px; font-size: 13px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 11px 3px 3px; font-size: 13px; }
 .chip.plain { padding: 4px 12px; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.legend { display: flex; gap: 14px; color: var(--muted); font-size: 12.5px; flex-wrap: wrap; }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
-.sw { width: 18px; height: 12px; border-radius: 3px; display: inline-block; }
-.sw.plan { background: var(--plan-soft); border-left: 3px solid var(--plan); }
-.sw.open { background: var(--open-soft); border: 1.5px dashed var(--open); }
-.sw.ok { background: var(--plan-soft); border: 1.5px solid var(--plan); }
-.sw.priv { background: var(--priv-soft); border-left: 3px solid var(--priv); }
+.legend { display: flex; gap: 12px; color: var(--muted); font-size: 12px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.ldot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.lopen { width: 14px; height: 10px; border: 1.5px dashed var(--open); border-radius: 3px; display: inline-block; }
 
-.notice { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; color: var(--muted); }
+.notice { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--brand-b); border-radius: 10px; padding: 10px 14px; }
 
+/* month */
+.month { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.mhead, .mgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.mhead div { padding: 8px 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+.mhead div:nth-child(n+6) { color: var(--brand-a); }
+.cell { min-height: 112px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; display: flex; flex-direction: column; gap: 3px; min-width: 0; cursor: pointer; background: none; text-align: left; border-top: none; border-left: none; }
+.cell:nth-child(7n) { border-right: none; }
+.cell:hover { background: color-mix(in srgb, var(--brand-c) 6%, transparent); }
+.cell.other { background: color-mix(in srgb, var(--bg) 60%, transparent); }
+.cell.other .num { color: var(--muted); opacity: .6; }
+.cell.past .num { color: var(--muted); }
+.cell.sel { box-shadow: inset 0 0 0 2px var(--brand-c); }
+.num { font-family: var(--display); font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; }
+.cell.today .num { background: var(--today); color: #fff; }
+.mchip { display: block; font-size: 11.5px; line-height: 1.3; padding: 2px 6px; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); color: var(--ink); border-left: 3px solid var(--c); }
+.mchip b { font-weight: 600; color: var(--c); font-variant-numeric: tabular-nums; }
+.mchip.open { border: 1.5px dashed var(--open); background: color-mix(in srgb, var(--open) var(--tint), var(--surface)); }
+.mchip.priv { --c: var(--priv); }
+.more { font-size: 11px; color: var(--muted); padding-left: 4px; }
+.dots { display: none; gap: 3px; flex-wrap: wrap; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.dots i.open { background: none; border: 1.5px dashed var(--open); }
+
+/* agenda + week */
+.agenda { display: grid; gap: 10px; }
+.agenda h2 { font-family: var(--display); font-size: 20px; margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.agenda h2 .btn { font-family: var(--body); font-size: 13px; font-weight: 500; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
-.day { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; display: flex; flex-direction: column; min-height: 220px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; display: flex; flex-direction: column; min-height: 220px; }
 .day.today { border-color: var(--today); box-shadow: inset 0 3px 0 var(--today); }
-.day.past { opacity: .62; }
+.day.past { opacity: .65; }
 .dhead { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; padding: 10px 10px 6px; }
-.dname { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.dname { font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .today .dname { color: var(--today); }
-.dnum { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
+.dnum { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1; }
 .add-day { border: none; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
 .add-day:hover { background: var(--bg); color: var(--ink); }
 .items { display: flex; flex-direction: column; gap: 6px; padding: 0 6px 8px; }
-.empty-day { color: var(--muted); font-size: 12.5px; padding: 4px 6px; }
+.empty { color: var(--muted); font-size: 13px; }
 
-.card { border-radius: 8px; padding: 8px 9px; display: grid; gap: 5px; min-width: 0; background: var(--plan-soft); border-left: 3px solid var(--plan); }
-.card.open { background: var(--open-soft); border: 1.5px dashed var(--open); }
-.card.confirmed { background: var(--plan-soft); border: 1.5px solid var(--plan); }
-.card.priv { background: var(--priv-soft); border-left: 3px solid var(--priv); }
-.card.priv .ctime { color: var(--priv); }
-.tag.priv { color: var(--priv); border: 1px solid var(--priv); }
-.privrow { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; }
-.privrow input { margin-top: 3px; accent-color: var(--priv); width: 16px; height: 16px; flex: none; }
-.privrow b { display: block; font-size: 13.5px; }
-.privrow small { color: var(--muted); font-size: 12px; }
-.privrow:has(input:checked) { border-color: var(--priv); background: var(--priv-soft); }
-.kind.locked { opacity: .45; pointer-events: none; }
-.ctime { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--plan); }
+/* card */
+.card { --c: var(--c-other); text-align: left; border: none; border-radius: 10px; padding: 9px 10px; display: grid; gap: 5px; min-width: 0; width: 100%; background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-left: 4px solid var(--c); }
+.card:hover { filter: brightness(.98); }
+.card.open { border: 1.5px dashed var(--open); background: color-mix(in srgb, var(--open) var(--tint), var(--surface)); }
+.card.priv { --c: var(--priv); }
+.ctop { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ctime { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--c); }
 .card.open .ctime { color: var(--open); }
 .ctitle { font-weight: 600; overflow-wrap: anywhere; }
 .cmeta { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
-.tag { justify-self: start; font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; }
-.tag.open { color: var(--open); border: 1px solid var(--open); }
-.tag.ok { color: var(--plan); border: 1px solid var(--plan); }
+.tag { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; }
+.tag.cat { color: var(--c); }
+.tag.open { color: var(--open); }
+.tag.ok { color: var(--c-food); }
+.tag.priv { color: var(--priv); }
+.tag.chat { color: var(--brand-c); }
 .people { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .stack { display: flex; }
 .stack .av { margin-left: -6px; }
 .stack .av:first-child { margin-left: 0; }
 .av { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--surface); object-fit: cover; background: var(--line); flex: none; }
-.chip .av { border: none; width: 20px; height: 20px; }
+.chip .av { border: 2px solid transparent; width: 22px; height: 22px; }
 .who { font-size: 12px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
-.acts { display: flex; gap: 6px; flex-wrap: wrap; }
-.act { font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 9px; border: 1px solid var(--plan); background: var(--plan); color: var(--surface); }
-.card.open .act.join { background: var(--open); border-color: var(--open); }
-.act.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
-.act.del { background: transparent; color: var(--danger); border-color: transparent; padding-inline: 4px; }
 
-.overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--ink) 40%, transparent); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); z-index: 20; }
-.panel { background: var(--surface); border-radius: 14px; width: min(460px, 100%); max-height: 100%; overflow: auto; padding: 20px; display: grid; gap: 14px; border: 1px solid var(--line); }
-.panel h2 { font-family: var(--display); font-size: 22px; margin: 0; }
+/* overlays */
+.overlay { position: fixed; inset: 0; background: color-mix(in srgb, #0b0e16 45%, transparent); display: grid; place-items: center; padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); z-index: 20; }
+.panel { background: var(--surface); border-radius: 16px; width: min(500px, 100%); max-height: 100%; overflow: auto; padding: 20px; display: grid; gap: 14px; border: 1px solid var(--line); }
+.panel h2 { font-family: var(--display); font-size: 22px; margin: 0; overflow-wrap: anywhere; }
 .kind { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kind label { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; display: grid; gap: 2px; }
-.kind input { position: absolute; opacity: 0; pointer-events: none; }
-.kind label:has(input:checked) { border-color: var(--plan); background: var(--plan-soft); }
-.kind label.k-open:has(input:checked) { border-color: var(--open); border-style: dashed; background: var(--open-soft); }
-.kind label:has(input:focus-visible) { outline: 2px solid var(--today); outline-offset: 2px; }
+.kind input, .cats input { position: absolute; opacity: 0; pointer-events: none; }
+.kind label:has(input:checked) { border-color: var(--brand-c); background: color-mix(in srgb, var(--brand-c) 12%, var(--surface)); }
+.kind label.k-open:has(input:checked) { border-color: var(--open); border-style: dashed; background: color-mix(in srgb, var(--open) 14%, var(--surface)); }
+.kind label:has(input:focus-visible), .cats label:has(input:focus-visible) { outline: 2px solid var(--brand-c); outline-offset: 2px; }
 .kind b { font-size: 13.5px; }
 .kind small { color: var(--muted); font-size: 12px; }
+.locked { opacity: .45; pointer-events: none; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.cats label { --c: var(--c-other); display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 11px 4px 8px; cursor: pointer; font-size: 13px; }
+.cats label i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.cats label:has(input:checked) { border-color: var(--c); background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); font-weight: 600; }
 .field { display: grid; gap: 4px; }
 .field > span { font-size: 12px; font-weight: 600; color: var(--muted); }
-.row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; }
-input[type=text], input[type=date], input[type=time], textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+.row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; }
+input[type=text], select, textarea { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
 textarea { resize: vertical; min-height: 54px; }
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); }
-.examples button { font-size: 12px; border: 1px dashed var(--line); background: none; border-radius: 999px; padding: 3px 9px; color: var(--ink); }
-.pactions { display: flex; justify-content: flex-end; gap: 8px; }
+.examples button { font-size: 12px; border: 1px dashed var(--line); background: none; border-radius: 999px; padding: 3px 9px; }
+.privrow { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; }
+.privrow input { margin-top: 3px; accent-color: var(--priv); width: 16px; height: 16px; flex: none; }
+.privrow b { display: block; font-size: 13.5px; }
+.privrow small { color: var(--muted); font-size: 12px; }
+.privrow:has(input:checked) { border-color: var(--priv); background: color-mix(in srgb, var(--priv) 12%, var(--surface)); }
+.pactions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .err { color: var(--danger); font-size: 13px; margin: 0; }
+
+/* detail + chat */
+.detail { width: min(560px, 100%); }
+.dhero { --c: var(--c-other); border-radius: 12px; padding: 14px; background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-left: 5px solid var(--c); display: grid; gap: 6px; }
+.dhero.open { border: 1.5px dashed var(--open); background: color-mix(in srgb, var(--open) var(--tint), var(--surface)); }
+.dhero.priv { --c: var(--priv); }
+.dline { color: var(--muted); }
+.dline strong { color: var(--ink); font-weight: 600; }
+.dacts { display: flex; gap: 8px; flex-wrap: wrap; }
+.act { font-weight: 600; border-radius: 8px; padding: 7px 13px; border: 1px solid var(--brand-c); background: var(--brand-c); color: #fff; }
+.act.joinopen { background: var(--open); border-color: var(--open); }
+.act.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.act.del { background: transparent; color: var(--danger); border-color: transparent; }
+.chat { border: 1px solid var(--line); border-radius: 12px; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
+.chat-h { padding: 9px 12px; font-weight: 600; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.chat-h small { font-weight: 400; color: var(--muted); }
+.msgs { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; min-height: 120px; overflow-y: auto; background: var(--bg); }
+.msg { display: flex; gap: 8px; align-items: flex-end; max-width: 88%; }
+.msg.mine { align-self: flex-end; flex-direction: row-reverse; }
+.bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 12px 12px 12px 4px; padding: 6px 10px; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.msg.mine .bubble { background: color-mix(in srgb, var(--brand-c) 18%, var(--surface)); border-color: color-mix(in srgb, var(--brand-c) 40%, var(--line)); border-radius: 12px 12px 4px 12px; }
+.bmeta { font-size: 11px; color: var(--muted); display: block; margin-bottom: 1px; }
+.chat-empty { color: var(--muted); font-size: 13px; text-align: center; margin: auto; padding: 10px; }
+.chat form { display: flex; gap: 8px; padding: 8px; border-top: 1px solid var(--line); }
+.chat form input { flex: 1; }
+.chat-locked { padding: 12px; color: var(--muted); font-size: 13px; background: var(--bg); border-radius: 10px; }
 
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 30; max-width: calc(100% - 32px); }
 
@@ -144,6 +213,13 @@ textarea { resize: vertical; min-height: 54px; }
   .week { grid-template-columns: minmax(0, 1fr); }
   .day { min-height: 0; }
   .day.past { display: none; }
+}
+@media (max-width: 700px) {
+  .cell { min-height: 58px; align-items: center; padding: 4px 2px; }
+  .mchip, .more { display: none; }
+  .dots { display: flex; justify-content: center; }
+  .mhead div { padding: 6px 2px; text-align: center; letter-spacing: 0; }
+  .period { min-width: 0; font-size: 18px; }
   .row { grid-template-columns: 1fr 1fr; }
   .row .field:first-child { grid-column: 1 / -1; }
 }
@@ -154,55 +230,69 @@ textarea { resize: vertical; min-height: 54px; }
 </style>
 </head>
 <body>
-
 <div class="wrap">
   <header>
-    <div>
-      <h1>Draugų planai</h1>
-      <p class="sub">Pažymėk, ką veiki ar kada esi laisva, ir prisijunk prie draugų.</p>
+    <div class="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="3" y="7" width="42" height="38" rx="10" fill="#ff6b4a"/>
+        <rect x="13" y="2" width="5" height="11" rx="2.5" fill="#1d2333"/>
+        <rect x="30" y="2" width="5" height="11" rx="2.5" fill="#1d2333"/>
+        <circle cx="19" cy="28" r="9" fill="#ffd23f"/>
+        <circle cx="29" cy="28" r="9" fill="#22b8a6" fill-opacity=".9"/>
+      </svg>
+      <div>
+        <h1>Draugų planai<span class="dot">.</span></h1>
+        <p class="sub">Žymėk, ką veiki, ir prisijunk prie draugų.</p>
+      </div>
     </div>
-    <div class="nav">
-      <button class="btn icon" id="prev" aria-label="Ankstesnė savaitė">‹</button>
-      <div class="range" id="range"></div>
-      <button class="btn icon" id="next" aria-label="Kita savaitė">›</button>
-      <button class="btn" id="todayBtn">Ši savaitė</button>
+    <div class="acts-top">
       <button class="btn primary" id="addBtn">+ Pridėti planą</button>
       <button class="btn primary" id="loginBtn">Prisijungti su Google</button>
       <button class="btn" id="logoutBtn">Atsijungti</button>
     </div>
   </header>
 
-  <div class="bar">
-    <div class="chips" id="filters" role="group" aria-label="Kieno planus rodyti"></div>
-    <div class="legend">
-      <span><i class="sw plan"></i>Planas</span>
-      <span><i class="sw open"></i>Laisva, noriu kur nors eiti</span>
-      <span><i class="sw ok"></i>Patvirtinta kartu</span>
-      <span><i class="sw priv"></i>Privatu, mato tik tu</span>
+  <div class="toolbar">
+    <div class="nav">
+      <button class="btn" id="prev" aria-label="Atgal">‹</button>
+      <div class="period" id="period"></div>
+      <button class="btn" id="next" aria-label="Pirmyn">›</button>
+      <button class="btn" id="todayBtn">Šiandien</button>
+    </div>
+    <div class="seg" role="group" aria-label="Vaizdas">
+      <button id="vMonth" aria-pressed="true">Mėnuo</button>
+      <button id="vWeek" aria-pressed="false">Savaitė</button>
     </div>
   </div>
 
+  <div class="bar">
+    <div class="chips" id="filters" role="group" aria-label="Kieno planus rodyti"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
   <div class="notice" id="notice" hidden></div>
-  <div class="week" id="week" aria-live="polite"></div>
+  <div id="view"></div>
 </div>
 
-<div class="overlay" id="overlay" hidden>
+<!-- Naujo plano forma -->
+<div class="overlay" id="formOverlay" hidden>
   <form class="panel" id="form" autocomplete="off">
-    <h2 id="formTitle">Naujas planas</h2>
+    <h2>Naujas planas</h2>
     <div class="kind" id="kindBox">
       <label><input type="radio" name="kind" id="kindPlan" value="plan" checked><b>Turiu planą</b><small>Pilatas, kinas, koncertas…</small></label>
       <label class="k-open"><input type="radio" name="kind" id="kindOpen" value="open"><b>Esu laisva</b><small>Noriu kur nors nueiti</small></label>
     </div>
     <div class="examples" id="examples"><span>Greitai:</span></div>
     <label class="field"><span>Kas?</span><input type="text" id="fTitle" maxlength="80" placeholder="Pvz. Pilatas po darbo"></label>
+    <div class="field"><span>Kategorija</span><div class="cats" id="cats"></div></div>
     <div class="row">
-      <label class="field"><span>Diena</span><input type="date" id="fDate" required></label>
-      <label class="field"><span>Nuo</span><input type="time" id="fFrom"></label>
-      <label class="field"><span>Iki</span><input type="time" id="fTo"></label>
+      <label class="field"><span>Diena</span><select id="fDate"></select></label>
+      <label class="field"><span>Nuo</span><select id="fFrom"></select></label>
+      <label class="field"><span>Iki</span><select id="fTo"></select></label>
     </div>
     <label class="field"><span>Kur?</span><input type="text" id="fPlace" maxlength="80" placeholder="Pvz. Forum Cinemas"></label>
     <label class="field"><span>Pastaba draugams</span><textarea id="fNote" maxlength="240" placeholder="Pvz. Dar yra 2 laisvos vietos, bilietas 12 €"></textarea></label>
-    <label class="privrow"><input type="checkbox" id="fPrivate"><span><b>Privatu</b><small>Šio plano nematys niekas, tik tu. Draugai negalės prie jo prisijungti.</small></span></label>
+    <label class="privrow"><input type="checkbox" id="fPrivate"><span><b>Privatu</b><small>Šio plano nematys niekas, tik tu.</small></span></label>
     <p class="err" id="fErr" hidden></p>
     <div class="pactions">
       <button type="button" class="btn" id="cancel">Atšaukti</button>
@@ -210,10 +300,20 @@ textarea { resize: vertical; min-height: 54px; }
     </div>
   </form>
 </div>
+
+<!-- Veiklos detalės ir pokalbis -->
+<div class="overlay" id="detailOverlay" hidden>
+  <div class="panel detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div id="detailBody"></div>
+    <div id="chatBox"></div>
+    <div class="pactions"><button type="button" class="btn" id="closeDetail">Uždaryti</button></div>
+  </div>
+</div>
 <div class="toast" id="toast" hidden></div>
+
 <script type="module">
 // ================================================================
-// 1) ČIA ĮKLIJUOK SAVO FIREBASE KONFIGŪRACIJĄ (žr. README, 2 žingsnis)
+// FIREBASE KONFIGŪRACIJA
 // ================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCiTmY7-dDGa07_Tcu3C0zK1ONR4w0f1gQ",
@@ -227,153 +327,312 @@ const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const DAYS = ["Pirmadienis","Antradienis","Trečiadienis","Ketvirtadienis","Penktadienis","Šeštadienis","Sekmadienis"];
-const MONTHS = ["sausio","vasario","kovo","balandžio","gegužės","birželio","liepos","rugpjūčio","rugsėjo","spalio","lapkričio","gruodžio"];
+const DSHORT = ["Pr","An","Tr","Kt","Pn","Št","Sk"];
+const MONTHS_G = ["sausio","vasario","kovo","balandžio","gegužės","birželio","liepos","rugpjūčio","rugsėjo","spalio","lapkričio","gruodžio"];
+const MONTHS_N = ["Sausis","Vasaris","Kovas","Balandis","Gegužė","Birželis","Liepa","Rugpjūtis","Rugsėjis","Spalis","Lapkritis","Gruodis"];
+const CATS = [
+  { id: "sport", label: "Sportas", v: "--c-sport" },
+  { id: "film",  label: "Kinas, teatras", v: "--c-film" },
+  { id: "music", label: "Koncertas", v: "--c-music" },
+  { id: "food",  label: "Maistas, kava", v: "--c-food" },
+  { id: "out",   label: "Gamta, išvyka", v: "--c-out" },
+  { id: "other", label: "Kita", v: "--c-other" },
+];
+const cvar = (ev) => ev.private ? "var(--priv)" : "var(" + catOf(ev.cat).v + ")";
+const catOf = (id) => CATS.find(c => c.id === id) || CATS[CATS.length-1];
+const PERSON_COLORS = ["#ff6b4a","#22b8a6","#7048e8","#e64980","#f59f00","#1c7ed6","#2f9e44","#ae3ec9"];
 const $ = (id) => document.getElementById(id);
 
 const state = {
-  weekStart: mondayOf(new Date()),
+  view: "month", cursor: new Date(), selected: null,
   events: [], joins: [], privEvents: [], people: {},
   me: null, canWrite: false, filter: "all", loaded: false,
+  detailId: null,
 };
-let fs = null, auth = null, unsubs = [];
+let fs = null, auth = null, unsubs = [], chatUnsub = null, chatFor = null;
 
 function pad(n){ return String(n).padStart(2,"0"); }
 function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
-function mondayOf(d){ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const wd = (x.getDay()+6)%7; x.setDate(x.getDate()-wd); return x; }
+function parse(s){ return new Date(s + "T12:00"); }
+function mondayOf(d){ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
 function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-function rangeLabel(){
-  const a = state.weekStart, b = addDays(a,6);
-  if (a.getMonth() === b.getMonth()) return cap(MONTHS[a.getMonth()])+" "+a.getDate()+"–"+b.getDate()+" d.";
-  return cap(MONTHS[a.getMonth()])+" "+a.getDate()+" – "+MONTHS[b.getMonth()]+" "+b.getDate()+" d.";
-}
-function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
+function longDate(s){ const d = parse(s); return DAYS[(d.getDay()+6)%7] + ", " + MONTHS_G[d.getMonth()] + " " + d.getDate() + " d."; }
+state.selected = ymd(new Date());
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2800); }
 function notice(msg){ const n=$("notice"); if(!msg){ n.hidden=true; return; } n.textContent=msg; n.hidden=false; }
 
-function colorFor(id){ let h=0; for (const c of id) h=(h*31+c.charCodeAt(0))%360; return "hsl("+h+" 55% 50%)"; }
+function colorFor(id){ let h=0; for (const c of (id||"x")) h=(h*31+c.charCodeAt(0))>>>0; return PERSON_COLORS[h % PERSON_COLORS.length]; }
 function initialsAvatar(name, color){
-  const t = (name||"?").split(/\s+/).map(s=>s[0]||"").join("").slice(0,2).toUpperCase();
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44"><rect width="44" height="44" rx="22" fill="'+color+'"/><text x="22" y="28" font-family="sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#fff">'+t.replace(/[<&>]/g,"")+'</text></svg>';
+  const t = (name||"?").split(/\s+/).map(s=>s[0]||"").join("").slice(0,2).toUpperCase().replace(/[<&>"']/g,"");
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44"><rect width="44" height="44" rx="22" fill="'+color+'"/><text x="22" y="28" font-family="sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#fff">'+t+'</text></svg>';
   return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
 }
-function prof(id){
-  const p = state.people[id] || {};
-  const color = colorFor(id || "x");
-  return { name: p.name || "", avatarUrl: p.photo || initialsAvatar(p.name, color), color };
-}
+function prof(id){ const p = state.people[id] || {}; const color = colorFor(id); return { name: p.name || "", avatarUrl: p.photo || initialsAvatar(p.name, color), color }; }
 const nameOf = (id) => id === state.me ? "Tu" : (prof(id).name || "Draugas");
+function avatar(id){ const p = prof(id); const im = document.createElement("img"); im.className="av"; im.alt=""; im.src=p.avatarUrl; im.referrerPolicy="no-referrer"; im.style.borderColor = p.color; return im; }
+function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
 function joinersOf(evId){ return state.joins.filter(j => j.eventId === evId).map(j => j.user); }
+function allEvents(){ return state.events.concat(state.privEvents); }
+function findEvent(id){ return allEvents().find(e => e.id === id); }
 function visibleEvents(){
   const me = state.me;
-  return state.events.concat(state.privEvents).filter(ev => {
+  return allEvents().filter(ev => {
     if (ev.private) return state.filter === "all" || state.filter === "mine";
     if (state.filter === "all") return true;
     if (state.filter === "mine") return ev.owner === me || joinersOf(ev.id).includes(me);
     return ev.owner === state.filter || joinersOf(ev.id).includes(state.filter);
   });
 }
+const byTime = (a,b) => (a.from||"99").localeCompare(b.from||"99");
+function isParticipant(ev){ return ev.owner === state.me || joinersOf(ev.id).includes(state.me); }
 
+// ---------- render ----------
 function render(){
-  $("range").textContent = rangeLabel();
-  const ids = new Set();
-  if (state.me) ids.add(state.me);
+  $("vMonth").setAttribute("aria-pressed", String(state.view === "month"));
+  $("vWeek").setAttribute("aria-pressed", String(state.view === "week"));
+  renderFilters();
+  renderLegend();
+  if (state.view === "month") renderMonth(); else renderWeek();
+  if (state.detailId) renderDetail();
+}
+
+function renderFilters(){
+  const f = $("filters"); f.replaceChildren();
+  if (!state.me) return;
+  const ids = new Set([state.me]);
   state.events.forEach(e => e.owner && ids.add(e.owner));
   state.joins.forEach(j => j.user && ids.add(j.user));
-
-  const f = $("filters"); f.replaceChildren();
   const mk = (key, label, id) => {
-    const b = document.createElement("button");
-    b.className = "chip" + (id ? "" : " plain");
+    const b = el("button", "chip" + (id ? "" : " plain"));
     b.setAttribute("aria-pressed", String(state.filter === key));
-    if (id) b.append(avatar(prof(id)));
+    if (id) { const a = avatar(id); a.style.borderColor = prof(id).color; b.append(a); }
     b.append(document.createTextNode(label));
     b.onclick = () => { state.filter = key; render(); };
     f.append(b);
   };
-  if (state.me) {
-    mk("all","Visi");
-    mk("mine","Mano kalendorius");
-    [...ids].filter(id => id !== state.me).forEach(id => mk(id, prof(id).name || "Draugas", id));
-  }
-
-  const week = $("week"); week.replaceChildren();
-  const todayStr = ymd(new Date());
-  const evs = visibleEvents();
-  for (let i=0;i<7;i++){
-    const d = addDays(state.weekStart,i), ds = ymd(d);
-    const col = document.createElement("section");
-    col.className = "day" + (ds===todayStr ? " today" : "") + (ds<todayStr ? " past" : "");
-    col.setAttribute("aria-label", DAYS[i]+", "+MONTHS[d.getMonth()]+" "+d.getDate()+" d.");
-    const head = document.createElement("div"); head.className = "dhead";
-    const l = document.createElement("div");
-    l.innerHTML = '<div class="dname"></div><div class="dnum"></div>';
-    l.querySelector(".dname").textContent = (ds===todayStr ? "Šiandien · " : "") + DAYS[i];
-    l.querySelector(".dnum").textContent = d.getDate();
-    head.append(l);
-    if (state.canWrite && ds >= todayStr) {
-      const ab = document.createElement("button"); ab.className="add-day"; ab.textContent="+";
-      ab.setAttribute("aria-label","Pridėti planą: "+DAYS[i]);
-      ab.onclick = () => openForm(ds);
-      head.append(ab);
-    }
-    col.append(head);
-    const list = document.createElement("div"); list.className = "items";
-    const dayEvs = evs.filter(e => e.date === ds).sort((a,b) => (a.from||"99").localeCompare(b.from||"99"));
-    if (!dayEvs.length) {
-      const e = document.createElement("div"); e.className = "empty-day";
-      e.textContent = state.me && !state.loaded ? "Kraunama…" : "Planų nėra";
-      list.append(e);
-    }
-    dayEvs.forEach(ev => list.append(card(ev, ds < todayStr)));
-    col.append(list);
-    week.append(col);
-  }
+  mk("all","Visi"); mk("mine","Mano kalendorius");
+  [...ids].filter(id => id !== state.me).forEach(id => mk(id, prof(id).name || "Draugas", id));
+}
+function renderLegend(){
+  const l = $("legend"); if (l.childElementCount) return;
+  CATS.forEach(c => { const s = el("span"); const d = el("i","ldot"); d.style.background = "var("+c.v+")"; s.append(d, document.createTextNode(c.label)); l.append(s); });
+  const s = el("span"); s.append(el("i","lopen"), document.createTextNode("Laisva")); l.append(s);
 }
 
-function avatar(p){ const im = document.createElement("img"); im.className="av"; im.alt=""; im.src=p.avatarUrl; im.referrerPolicy="no-referrer"; im.style.borderColor = p.color; return im; }
+function renderMonth(){
+  const c = state.cursor;
+  $("period").textContent = MONTHS_N[c.getMonth()] + " " + c.getFullYear();
+  const first = new Date(c.getFullYear(), c.getMonth(), 1);
+  const start = mondayOf(first);
+  const last = new Date(c.getFullYear(), c.getMonth()+1, 0);
+  const weeks = Math.ceil((((first.getDay()+6)%7) + last.getDate()) / 7);
+  const todayStr = ymd(new Date());
+  const evs = visibleEvents();
 
-function card(ev, past){
+  const box = el("div","month");
+  const head = el("div","mhead"); DSHORT.forEach(d => head.append(el("div", null, d)));
+  const grid = el("div","mgrid");
+  for (let i=0; i<weeks*7; i++){
+    const d = addDays(start, i), ds = ymd(d);
+    const cell = el("button","cell");
+    if (d.getMonth() !== c.getMonth()) cell.classList.add("other");
+    if (ds === todayStr) cell.classList.add("today");
+    if (ds < todayStr) cell.classList.add("past");
+    if (ds === state.selected) cell.classList.add("sel");
+    cell.setAttribute("aria-label", longDate(ds));
+    cell.append(el("span","num", d.getDate()));
+    const dayEvs = evs.filter(e => e.date === ds).sort(byTime);
+    const dots = el("span","dots");
+    dayEvs.slice(0,3).forEach(ev => {
+      const ch = el("span","mchip" + (ev.kind === "open" ? " open" : "") + (ev.private ? " priv" : ""));
+      ch.style.setProperty("--c", cvar(ev));
+      if (ev.from) ch.append(el("b", null, ev.from + " "));
+      ch.append(document.createTextNode(ev.title));
+      cell.append(ch);
+    });
+    if (dayEvs.length > 3) cell.append(el("span","more","+" + (dayEvs.length-3) + " daugiau"));
+    dayEvs.slice(0,5).forEach(ev => { const i2 = el("i", ev.kind === "open" ? "open" : ""); i2.style.setProperty("--c", cvar(ev)); dots.append(i2); });
+    cell.append(dots);
+    cell.onclick = () => { state.selected = ds; render(); };
+    grid.append(cell);
+  }
+  box.append(head, grid);
+
+  const ag = el("section","agenda");
+  const h = el("h2", null, cap(longDate(state.selected)));
+  if (state.canWrite && state.selected >= todayStr) { const b = el("button","btn","+ Pridėti šiai dienai"); b.onclick = () => openForm(state.selected); h.append(b); }
+  ag.append(h);
+  const list = el("div","cards");
+  const sel = evs.filter(e => e.date === state.selected).sort(byTime);
+  if (!sel.length) list.append(el("p","empty", state.me && !state.loaded ? "Kraunama…" : "Šią dieną planų nėra."));
+  sel.forEach(ev => list.append(card(ev)));
+  ag.append(list);
+  $("view").replaceChildren(box, ag);
+}
+
+function renderWeek(){
+  const ws = mondayOf(state.cursor), we = addDays(ws,6);
+  $("period").textContent = ws.getMonth() === we.getMonth()
+    ? cap(MONTHS_G[ws.getMonth()]) + " " + ws.getDate() + "–" + we.getDate() + " d."
+    : cap(MONTHS_G[ws.getMonth()]) + " " + ws.getDate() + " – " + MONTHS_G[we.getMonth()] + " " + we.getDate() + " d.";
+  const todayStr = ymd(new Date());
+  const evs = visibleEvents();
+  const week = el("div","week");
+  for (let i=0;i<7;i++){
+    const d = addDays(ws,i), ds = ymd(d);
+    const col = el("section","day" + (ds===todayStr ? " today" : "") + (ds<todayStr ? " past" : ""));
+    const head = el("div","dhead"); const l = el("div");
+    l.append(el("div","dname",(ds===todayStr ? "Šiandien · " : "") + DAYS[i]), el("div","dnum", d.getDate()));
+    head.append(l);
+    if (state.canWrite && ds >= todayStr) { const ab = el("button","add-day","+"); ab.setAttribute("aria-label","Pridėti planą: "+DAYS[i]); ab.onclick = () => openForm(ds); head.append(ab); }
+    const list = el("div","items");
+    const dayEvs = evs.filter(e => e.date === ds).sort(byTime);
+    if (!dayEvs.length) list.append(el("div","empty", state.me && !state.loaded ? "Kraunama…" : "Planų nėra"));
+    dayEvs.forEach(ev => list.append(card(ev)));
+    col.append(head, list); week.append(col);
+  }
+  $("view").replaceChildren(week);
+}
+
+function card(ev){
   const joiners = joinersOf(ev.id).filter(u => u !== ev.owner);
   const isOpen = ev.kind === "open";
-  const confirmed = isOpen && joiners.length > 0;
-  const iJoined = joiners.includes(state.me);
-  const c = document.createElement("article");
-  c.className = "card" + (ev.private ? " priv" : isOpen ? (confirmed ? " confirmed" : " open") : "");
-  if (ev.private) { const t = document.createElement("span"); t.className = "tag priv"; t.textContent = "Privatu"; c.append(t); }
-  if (isOpen) { const t = document.createElement("span"); t.className = "tag " + (confirmed ? "ok" : "open"); t.textContent = confirmed ? "Patvirtinta" : "Laisva"; c.append(t); }
-  if (ev.from) { const tm = document.createElement("div"); tm.className = "ctime"; tm.textContent = ev.from + (ev.to ? "–"+ev.to : ""); c.append(tm); }
-  const ti = document.createElement("div"); ti.className = "ctitle"; ti.textContent = ev.title || (isOpen ? "Noriu kur nors nueiti" : "Planas"); c.append(ti);
-  if (ev.place || ev.note) { const m = document.createElement("div"); m.className = "cmeta"; m.textContent = [ev.place, ev.note].filter(Boolean).join(" · "); c.append(m); }
+  const c = el("button","card" + (ev.private ? " priv" : isOpen ? " open" : ""));
+  c.style.setProperty("--c", cvar(ev));
+  const top = el("div","ctop");
+  if (ev.from) top.append(el("span","ctime", ev.from + (ev.to ? "–"+ev.to : "")));
+  if (ev.private) top.append(el("span","tag priv","Privatu"));
+  else if (isOpen) top.append(el("span","tag " + (joiners.length ? "ok" : "open"), joiners.length ? "Patvirtinta" : "Laisva"));
+  else top.append(el("span","tag cat", catOf(ev.cat).label));
+  if (!ev.private && joiners.length && isParticipant(ev)) top.append(el("span","tag chat","Pokalbis"));
+  c.append(top, el("div","ctitle", ev.title));
+  if (ev.place) c.append(el("div","cmeta", ev.place));
   if (!ev.private) {
-    const ppl = document.createElement("div"); ppl.className = "people";
-    const st = document.createElement("div"); st.className = "stack";
-    [ev.owner, ...joiners].forEach(u => st.append(avatar(prof(u))));
-    const who = document.createElement("span"); who.className = "who";
+    const ppl = el("div","people"), st = el("div","stack");
+    [ev.owner, ...joiners].forEach(u => st.append(avatar(u)));
     const names = [nameOf(ev.owner), ...joiners.map(nameOf)];
-    who.textContent = names.length === 1 ? names[0] : names.slice(0,-1).join(", ")+" ir "+names[names.length-1];
-    ppl.append(st, who); c.append(ppl);
+    ppl.append(st, el("span","who", names.length === 1 ? names[0] : names.slice(0,-1).join(", ")+" ir "+names[names.length-1]));
+    c.append(ppl);
   }
-  if (state.canWrite && !past) {
-    const a = document.createElement("div"); a.className = "acts";
-    if (ev.owner === state.me) {
-      const del = document.createElement("button"); del.className = "act del"; del.textContent = "Ištrinti";
-      del.onclick = () => confirmDelete(del, ev); a.append(del);
-    } else if (iJoined) {
-      const lv = document.createElement("button"); lv.className = "act ghost"; lv.textContent = "Atsisakyti";
-      lv.onclick = () => leave(ev, lv); a.append(lv);
-    } else {
-      const jn = document.createElement("button"); jn.className = "act join"; jn.textContent = isOpen ? "Einu kartu" : "Prisijungti";
-      jn.onclick = () => join(ev, jn); a.append(jn);
-    }
-    c.append(a);
-  }
+  c.onclick = () => openDetail(ev.id);
   return c;
 }
 
+// ---------- detail + chat ----------
+function openDetail(id){ state.detailId = id; $("detailOverlay").hidden = false; renderDetail(); }
+function closeDetail(){
+  state.detailId = null; $("detailOverlay").hidden = true;
+  if (chatUnsub) { chatUnsub(); chatUnsub = null; chatFor = null; }
+}
+$("closeDetail").onclick = closeDetail;
+$("detailOverlay").addEventListener("click", e => { if (e.target === $("detailOverlay")) closeDetail(); });
+
+function renderDetail(){
+  const ev = findEvent(state.detailId);
+  if (!ev) { closeDetail(); return; }
+  const joiners = joinersOf(ev.id).filter(u => u !== ev.owner);
+  const isOpen = ev.kind === "open";
+  const past = ev.date < ymd(new Date());
+  const body = $("detailBody"); body.replaceChildren();
+
+  const hero = el("div","dhero" + (ev.private ? " priv" : isOpen ? " open" : ""));
+  hero.style.setProperty("--c", cvar(ev));
+  const top = el("div","ctop");
+  if (ev.private) top.append(el("span","tag priv","Privatu"));
+  else if (isOpen) top.append(el("span","tag " + (joiners.length ? "ok" : "open"), joiners.length ? "Patvirtinta" : "Laisva, noriu kur nors eiti"));
+  top.append(el("span","tag cat", catOf(ev.cat).label));
+  const h = el("h2", null, ev.title); h.id = "dTitle";
+  hero.append(top, h);
+  const line = (label, val) => { if (!val) return; const p = el("div","dline"); p.append(document.createTextNode(label + " ")); p.append(el("strong", null, val)); hero.append(p); };
+  line("Kada:", cap(longDate(ev.date)) + (ev.from ? ", " + ev.from + (ev.to ? "–" + ev.to : "") : ""));
+  line("Kur:", ev.place);
+  line("Pastaba:", ev.note);
+  if (!ev.private) {
+    const ppl = el("div","people"), st = el("div","stack");
+    [ev.owner, ...joiners].forEach(u => st.append(avatar(u)));
+    const names = [nameOf(ev.owner) + " (sukūrė)", ...joiners.map(nameOf)];
+    ppl.append(st, el("span","who", names.join(", ")));
+    hero.append(ppl);
+  }
+  body.append(hero);
+
+  if (state.canWrite && !past) {
+    const a = el("div","dacts");
+    if (ev.owner === state.me) {
+      const del = el("button","act del","Ištrinti planą");
+      del.onclick = () => confirmDelete(del, ev); a.append(del);
+    } else if (joiners.includes(state.me)) {
+      const lv = el("button","act ghost","Atsisakyti");
+      lv.onclick = () => leave(ev, lv); a.append(lv);
+    } else {
+      const jn = el("button","act" + (isOpen ? " joinopen" : ""), isOpen ? "Einu kartu" : "Prisijungti");
+      jn.onclick = () => join(ev, jn); a.append(jn);
+    }
+    body.append(a);
+  }
+  renderChatShell(ev, joiners);
+}
+
+function renderChatShell(ev, joiners){
+  const box = $("chatBox");
+  if (ev.private) { box.replaceChildren(); stopChat(); return; }
+  if (!joiners.length) {
+    stopChat();
+    box.replaceChildren(el("div","chat-locked", ev.owner === state.me
+      ? "Kai kas nors prisijungs, čia atsiras pokalbis, kuriame galėsite aptarti laiką ir vietą."
+      : "Prisijunk prie veiklos, ir galėsite pasikalbėti apie laiką, vietą ir kitas detales."));
+    return;
+  }
+  if (!isParticipant(ev)) {
+    stopChat();
+    box.replaceChildren(el("div","chat-locked","Pokalbis matomas tik dalyviams. Prisijunk, kad galėtum jame dalyvauti."));
+    return;
+  }
+  if (chatFor === ev.id && box.querySelector(".chat")) return;
+  stopChat();
+  const chat = el("div","chat");
+  const hdr = el("div","chat-h"); hdr.append(el("span", null, "Pokalbis"), el("small", null, (joiners.length + 1) + " dalyviai"));
+  const msgs = el("div","msgs"); msgs.id = "msgs";
+  msgs.append(el("div","chat-empty","Kraunama…"));
+  const form = el("form"); const inp = el("input"); inp.type = "text"; inp.id = "msgInput"; inp.maxLength = 1000; inp.placeholder = "Rašyk žinutę…"; inp.setAttribute("aria-label","Žinutė");
+  const send = el("button","btn primary","Siųsti"); send.type = "submit";
+  form.append(inp, send);
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const text = inp.value.trim(); if (!text) return;
+    send.disabled = true;
+    try { await addDoc(collection(fs, "events", ev.id, "messages"), { user: state.me, text, at: new Date().toISOString() }); inp.value = ""; }
+    catch(err) { failed(err); }
+    finally { send.disabled = false; inp.focus(); }
+  };
+  chat.append(hdr, msgs, form);
+  box.replaceChildren(chat);
+  chatFor = ev.id;
+  chatUnsub = onSnapshot(query(collection(fs, "events", ev.id, "messages"), orderBy("at"), limit(300)), snap => {
+    const list = $("msgs"); if (!list) return;
+    list.replaceChildren();
+    if (snap.empty) list.append(el("div","chat-empty","Dar nėra žinučių. Parašyk pirma – pvz. kada ir kur susitinkate."));
+    snap.docs.forEach(d => {
+      const m = d.data(); const mine = m.user === state.me;
+      const row = el("div","msg" + (mine ? " mine" : ""));
+      const b = el("div","bubble");
+      const t = new Date(m.at);
+      b.append(el("span","bmeta", (mine ? "Tu" : nameOf(m.user)) + " · " + pad(t.getDate()) + "." + pad(t.getMonth()+1) + " " + pad(t.getHours()) + ":" + pad(t.getMinutes())));
+      b.append(document.createTextNode(m.text));
+      row.append(avatar(m.user), b); list.append(row);
+    });
+    list.scrollTop = list.scrollHeight;
+  }, err => { console.error(err); const list = $("msgs"); if (list) list.replaceChildren(el("div","chat-empty","Pokalbio nepavyko įkelti.")); });
+}
+function stopChat(){ if (chatUnsub) { chatUnsub(); chatUnsub = null; } chatFor = null; }
+
+// ---------- actions ----------
 const joinId = (evId, uid) => evId + "--" + uid;
 const privPath = () => "private/" + state.me + "/events";
 
@@ -381,7 +640,8 @@ async function join(ev, btn){
   btn.disabled = true;
   try {
     await setDoc(doc(fs, "joins", joinId(ev.id, state.me)), { eventId: ev.id, user: state.me, at: new Date().toISOString() });
-    toast(ev.kind === "open" ? "Patvirtinta – planas atsirado abiejų kalendoriuose" : "Prisijungei!");
+    toast("Prisijungei! Aptarkite detales pokalbyje.");
+    setTimeout(() => $("msgInput") && $("msgInput").focus(), 400);
   } catch(e) { btn.disabled = false; failed(e); }
 }
 async function leave(ev, btn){
@@ -391,39 +651,68 @@ async function leave(ev, btn){
 }
 async function confirmDelete(btn, ev){
   if (!btn.dataset.armed) {
-    btn.dataset.armed = "1"; btn.textContent = "Tikrai ištrinti?";
-    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = "Ištrinti"; } }, 3500);
+    btn.dataset.armed = "1"; btn.textContent = "Tikrai ištrinti? Spausk dar kartą";
+    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = "Ištrinti planą"; } }, 3500);
     return;
   }
   btn.disabled = true;
   try {
     if (ev.private) await deleteDoc(doc(fs, privPath(), ev.id));
     else {
+      stopChat();
+      const ms = await getDocs(collection(fs, "events", ev.id, "messages"));
+      await Promise.all(ms.docs.map(d => deleteDoc(d.ref)));
       await Promise.all(state.joins.filter(j => j.eventId === ev.id).map(j => deleteDoc(doc(fs, "joins", j.id))));
       await deleteDoc(doc(fs, "events", ev.id));
     }
-    toast("Ištrinta");
+    closeDetail(); toast("Ištrinta");
   } catch(e) { btn.disabled = false; failed(e); }
 }
 function failed(e){
   console.error(e);
   if (e && e.code === "permission-denied") toast("Neturi teisės to daryti.");
-  else toast("Nepavyko išsaugoti. Bandyk dar kartą.");
+  else toast("Nepavyko. Bandyk dar kartą.");
 }
 
-// ----- forma -----
+// ---------- form ----------
+function fillTimes(sel){
+  sel.append(new Option("—", ""));
+  for (let h=0; h<24; h++) for (let m=0; m<60; m+=15) { const t = pad(h)+":"+pad(m); sel.append(new Option(t, t)); }
+}
+fillTimes($("fFrom")); fillTimes($("fTo"));
+$("fFrom").addEventListener("change", () => {
+  const f = $("fFrom").value; if (!f || ($("fTo").value && $("fTo").value > f)) return;
+  const [h,m] = f.split(":").map(Number); const t = pad(Math.min(23, h+1)) + ":" + pad(m);
+  $("fTo").value = t;
+});
+function fillDates(selected){
+  const sel = $("fDate"); sel.replaceChildren();
+  const today = new Date();
+  for (let i=0; i<366; i++) {
+    const d = addDays(today, i), s = ymd(d);
+    const label = (i === 0 ? "Šiandien, " : i === 1 ? "Rytoj, " : DSHORT[(d.getDay()+6)%7] + ", ") + MONTHS_G[d.getMonth()] + " " + d.getDate() + " d.";
+    sel.append(new Option(label, s));
+  }
+  sel.value = selected && selected >= ymd(today) ? selected : ymd(today);
+}
+CATS.forEach((c, i) => {
+  const l = el("label"); l.style.setProperty("--c", "var(" + c.v + ")");
+  const r = el("input"); r.type = "radio"; r.name = "cat"; r.value = c.id; r.id = "cat-" + c.id; if (c.id === "other") r.checked = true;
+  l.append(r, el("i"), document.createTextNode(c.label)); $("cats").append(l);
+});
 const EXAMPLES = [
-  { label: "Pilatas po darbo", kind:"plan", title:"Pilatas", wd:2, from:"18:30", to:"19:30" },
-  { label: "Kinas penktadienį", kind:"plan", title:"Kinas", wd:4, from:"19:30" },
-  { label: "Koncertas šeštadienį", kind:"plan", title:"Koncertas", wd:5, from:"20:00" },
-  { label: "Laisvas sekmadienis", kind:"open", title:"Noriu kur nors nueiti", wd:6, from:"" },
+  { label: "Pilatas po darbo", kind:"plan", cat:"sport", title:"Pilatas", wd:2, from:"18:30", to:"19:30" },
+  { label: "Kinas penktadienį", kind:"plan", cat:"film", title:"Kinas", wd:4, from:"19:30", to:"21:30" },
+  { label: "Koncertas šeštadienį", kind:"plan", cat:"music", title:"Koncertas", wd:5, from:"20:00", to:"" },
+  { label: "Laisvas sekmadienis", kind:"open", cat:"other", title:"Noriu kur nors nueiti", wd:6, from:"", to:"" },
 ];
 EXAMPLES.forEach(x => {
-  const b = document.createElement("button"); b.type="button"; b.textContent = x.label;
+  const b = el("button", null, x.label); b.type = "button";
   b.onclick = () => {
     $("fPrivate").checked = false; $("kindBox").classList.remove("locked");
     $(x.kind === "open" ? "kindOpen" : "kindPlan").checked = true;
-    $("fTitle").value = x.title; $("fFrom").value = x.from; $("fTo").value = x.to || "";
+    $("cat-" + x.cat).checked = true;
+    $("fTitle").value = x.title; $("fFrom").value = x.from; $("fTo").value = x.to;
     let d = addDays(mondayOf(new Date()), x.wd);
     if (ymd(d) < ymd(new Date())) d = addDays(d, 7);
     $("fDate").value = ymd(d);
@@ -437,14 +726,18 @@ $("fPrivate").addEventListener("change", () => {
 });
 function openForm(date){
   $("form").reset(); $("fErr").hidden = true; $("kindBox").classList.remove("locked");
-  $("fDate").value = date || ymd(new Date());
-  $("overlay").hidden = false; $("fTitle").focus();
+  $("cat-other").checked = true;
+  fillDates(date || state.selected);
+  $("formOverlay").hidden = false; $("fTitle").focus();
 }
-function closeForm(){ $("overlay").hidden = true; }
+function closeForm(){ $("formOverlay").hidden = true; }
 $("addBtn").onclick = () => openForm();
 $("cancel").onclick = closeForm;
-$("overlay").addEventListener("click", e => { if (e.target === $("overlay")) closeForm(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("overlay").hidden) closeForm(); });
+$("formOverlay").addEventListener("click", e => { if (e.target === $("formOverlay")) closeForm(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (!$("formOverlay").hidden) closeForm(); else if (!$("detailOverlay").hidden) closeDetail();
+});
 
 $("form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -453,10 +746,13 @@ $("form").addEventListener("submit", async (e) => {
   const title = $("fTitle").value.trim();
   const err = $("fErr");
   if (kind === "plan" && !title) { err.textContent = "Įrašyk, ką veiksi."; err.hidden = false; $("fTitle").focus(); return; }
-  if (!$("fDate").value) { err.textContent = "Pasirink dieną."; err.hidden = false; return; }
+  const from = $("fFrom").value, to = $("fTo").value;
+  if (from && to && to <= from) { err.textContent = "Pabaigos laikas turi būti vėliau nei pradžios."; err.hidden = false; return; }
+  const catEl = document.querySelector('input[name="cat"]:checked');
   const data = {
-    owner: state.me, kind, title: title || "Noriu kur nors nueiti",
-    date: $("fDate").value, from: $("fFrom").value || "", to: $("fTo").value || "",
+    owner: state.me, kind, cat: catEl ? catEl.value : "other",
+    title: title || "Noriu kur nors nueiti",
+    date: $("fDate").value, from, to,
     place: $("fPlace").value.trim(), note: $("fNote").value.trim(),
     created: new Date().toISOString(),
   };
@@ -464,17 +760,28 @@ $("form").addEventListener("submit", async (e) => {
   try {
     await addDoc(collection(fs, isPrivate ? privPath() : "events"), data);
     closeForm(); toast(isPrivate ? "Išsaugota privačiai – matai tik tu" : "Išsaugota – draugai jau mato");
-    const ws = mondayOf(new Date(data.date + "T12:00"));
-    if (+ws !== +state.weekStart) { state.weekStart = ws; render(); }
+    state.selected = data.date; state.cursor = parse(data.date); render();
   } catch(ex) { failed(ex); }
   finally { $("save").disabled = false; }
 });
 
-$("prev").onclick = () => { state.weekStart = addDays(state.weekStart,-7); render(); };
-$("next").onclick = () => { state.weekStart = addDays(state.weekStart,7); render(); };
-$("todayBtn").onclick = () => { state.weekStart = mondayOf(new Date()); render(); };
+// ---------- navigation ----------
+function shift(n){
+  const c = state.cursor;
+  state.cursor = state.view === "month" ? new Date(c.getFullYear(), c.getMonth()+n, 1) : addDays(c, 7*n);
+  if (state.view === "month") {
+    const t = new Date();
+    state.selected = (state.cursor.getMonth() === t.getMonth() && state.cursor.getFullYear() === t.getFullYear()) ? ymd(t) : ymd(state.cursor);
+  }
+  render();
+}
+$("prev").onclick = () => shift(-1);
+$("next").onclick = () => shift(1);
+$("todayBtn").onclick = () => { state.cursor = new Date(); state.selected = ymd(new Date()); render(); };
+$("vMonth").onclick = () => { state.view = "month"; state.cursor = parse(state.selected); render(); };
+$("vWeek").onclick = () => { state.view = "week"; state.cursor = parse(state.selected); render(); };
 
-// ----- prisijungimas ir duomenys -----
+// ---------- auth + data ----------
 $("addBtn").hidden = true;
 $("logoutBtn").hidden = true;
 render();
@@ -490,21 +797,18 @@ if (firebaseConfig.apiKey.includes("ĮKLIJUOK")) {
   });
   $("logoutBtn").onclick = () => signOut(auth);
   onAuthStateChanged(auth, (u) => {
-    unsubs.forEach(f => f()); unsubs = [];
+    unsubs.forEach(f => f()); unsubs = []; closeDetail();
     state.events = []; state.joins = []; state.privEvents = []; state.people = {}; state.loaded = false;
-    state.me = u ? u.uid : null;
-    state.canWrite = false;
+    state.me = u ? u.uid : null; state.canWrite = false;
     $("loginBtn").hidden = !!u; $("logoutBtn").hidden = !u; $("addBtn").hidden = true;
     if (!u) { notice("Prisijunk su Google paskyra, kad matytum draugų planus."); render(); return; }
-    notice("");
-    start(u);
+    notice(""); start(u);
   });
 }
 
 async function start(u){
-  try {
-    await setDoc(doc(fs, "users", u.uid), { name: u.displayName || "", photo: u.photoURL || "" });
-  } catch(e) {
+  try { await setDoc(doc(fs, "users", u.uid), { name: u.displayName || "", photo: u.photoURL || "" }); }
+  catch(e) {
     if (e.code === "permission-denied") {
       notice("Tavo paskyros (" + (u.email || "") + ") dar nėra draugų sąraše. Paprašyk kalendoriaus kūrėjos ją pridėti.");
       state.loaded = true; render(); return;
@@ -512,7 +816,7 @@ async function start(u){
   }
   state.canWrite = true; $("addBtn").hidden = false;
   const onErr = (e) => { console.error(e); notice("Planų nepavyko įkelti. Atnaujink puslapį."); };
-  let got = { ev:false, jo:false };
+  const got = { ev:false, jo:false };
   const done = () => { if (got.ev && got.jo) state.loaded = true; };
   unsubs.push(onSnapshot(collection(fs, "users"), s => { const p = {}; s.docs.forEach(d => p[d.id] = d.data()); state.people = p; render(); }, onErr));
   unsubs.push(onSnapshot(collection(fs, "events"), s => { state.events = s.docs.map(d => ({ id: d.id, ...d.data() })); got.ev = true; done(); render(); }, onErr));
