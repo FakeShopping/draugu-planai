@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===========================================================
+    // DRAUGŲ SĄRAŠAS: čia surašyk visų draugų Gmail adresus
+    // (mažosiomis raidėmis, kabutėse, atskirtus kableliais).
+    // Tik šie žmonės galės matyti ir pildyti kalendorių.
+    // ===========================================================
+    function isFriend() {
+      return request.auth != null && request.auth.token.email in [
+        'tavo.pastas@gmail.com',
+        'draugas1@gmail.com',
+        'draugas2@gmail.com'
+      ];
+    }
+
+    function me() { return request.auth.uid; }
+
+    // Draugų vardai ir nuotraukos
+    match /users/{uid} {
+      allow read: if isFriend();
+      allow write: if isFriend() && me() == uid;
+    }
+
+    // Bendri planai: visi draugai mato, keisti ar trinti gali tik autorius
+    match /events/{id} {
+      allow read: if isFriend();
+      allow create: if isFriend() && request.resource.data.owner == me();
+      allow update, delete: if isFriend() && resource.data.owner == me();
+    }
+
+    // Prisijungimai prie planų
+    match /joins/{id} {
+      allow read: if isFriend();
+      allow create: if isFriend()
+        && request.resource.data.user == me()
+        && id == request.resource.data.eventId + '--' + me();
+      allow delete: if isFriend() && (
+        resource.data.user == me()
+        || !exists(/databases/$(database)/documents/events/$(resource.data.eventId))
+        || get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.owner == me()
+      );
+    }
+
+    // Privatūs planai: mato ir keičia TIK pats savininkas
+    match /private/{uid}/events/{id} {
+      allow read, write: if request.auth != null && me() == uid;
+    }
+  }
+}

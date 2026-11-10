@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Draugų planai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a week board — seven day columns on wide screens, a stacked day list on phones.
+   Solid cards are plans; dashed amber cards are free time someone wants to fill. */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --ink: #18202b;
+  --muted: #5d6877;
+  --line: #d6dce4;
+  --plan: #0d7a6b;
+  --plan-soft: #dcf1ec;
+  --open: #b46a00;
+  --open-soft: #fff1d9;
+  --today: #2f4fd8;
+  --danger: #b3261e;
+  --priv: #5b5f73;
+  --priv-soft: #e6e7ee;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151b; --surface: #1a2029; --ink: #e8ecf1; --muted: #9aa5b3; --line: #2d3541;
+    --plan: #4cc7b2; --plan-soft: #15352f; --open: #f2b24a; --open-soft: #3a2b12;
+    --today: #8ea2ff; --danger: #ff8a80; --priv: #b4b8cc; --priv-soft: #262a35; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151b; --surface: #1a2029; --ink: #e8ecf1; --muted: #9aa5b3; --line: #2d3541;
+  --plan: #4cc7b2; --plan-soft: #15352f; --open: #f2b24a; --open-soft: #3a2b12;
+  --today: #8ea2ff; --danger: #ff8a80; --priv: #b4b8cc; --priv-soft: #262a35; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--today); outline-offset: 2px; }
+
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 36px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.range { font-family: var(--display); font-weight: 500; font-size: 17px; min-width: 150px; text-align: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; }
+.btn:hover { border-color: var(--muted); }
+.btn.icon { padding: 7px 10px; line-height: 1; }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 10px 4px 4px; font-size: 13px; }
+.chip.plain { padding: 4px 12px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.legend { display: flex; gap: 14px; color: var(--muted); font-size: 12.5px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.plan { background: var(--plan-soft); border-left: 3px solid var(--plan); }
+.sw.open { background: var(--open-soft); border: 1.5px dashed var(--open); }
+.sw.ok { background: var(--plan-soft); border: 1.5px solid var(--plan); }
+.sw.priv { background: var(--priv-soft); border-left: 3px solid var(--priv); }
+
+.notice { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; color: var(--muted); }
+
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; display: flex; flex-direction: column; min-height: 220px; }
+.day.today { border-color: var(--today); box-shadow: inset 0 3px 0 var(--today); }
+.day.past { opacity: .62; }
+.dhead { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; padding: 10px 10px 6px; }
+.dname { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.today .dname { color: var(--today); }
+.dnum { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
+.add-day { border: none; background: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.add-day:hover { background: var(--bg); color: var(--ink); }
+.items { display: flex; flex-direction: column; gap: 6px; padding: 0 6px 8px; }
+.empty-day { color: var(--muted); font-size: 12.5px; padding: 4px 6px; }
+
+.card { border-radius: 8px; padding: 8px 9px; display: grid; gap: 5px; min-width: 0; background: var(--plan-soft); border-left: 3px solid var(--plan); }
+.card.open { background: var(--open-soft); border: 1.5px dashed var(--open); }
+.card.confirmed { background: var(--plan-soft); border: 1.5px solid var(--plan); }
+.card.priv { background: var(--priv-soft); border-left: 3px solid var(--priv); }
+.card.priv .ctime { color: var(--priv); }
+.tag.priv { color: var(--priv); border: 1px solid var(--priv); }
+.privrow { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; }
+.privrow input { margin-top: 3px; accent-color: var(--priv); width: 16px; height: 16px; flex: none; }
+.privrow b { display: block; font-size: 13.5px; }
+.privrow small { color: var(--muted); font-size: 12px; }
+.privrow:has(input:checked) { border-color: var(--priv); background: var(--priv-soft); }
+.kind.locked { opacity: .45; pointer-events: none; }
+.ctime { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--plan); }
+.card.open .ctime { color: var(--open); }
+.ctitle { font-weight: 600; overflow-wrap: anywhere; }
+.cmeta { font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.tag { justify-self: start; font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; }
+.tag.open { color: var(--open); border: 1px solid var(--open); }
+.tag.ok { color: var(--plan); border: 1px solid var(--plan); }
+.people { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.stack { display: flex; }
+.stack .av { margin-left: -6px; }
+.stack .av:first-child { margin-left: 0; }
+.av { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--surface); object-fit: cover; background: var(--line); flex: none; }
+.chip .av { border: none; width: 20px; height: 20px; }
+.who { font-size: 12px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.act { font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 9px; border: 1px solid var(--plan); background: var(--plan); color: var(--surface); }
+.card.open .act.join { background: var(--open); border-color: var(--open); }
+.act.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+.act.del { background: transparent; color: var(--danger); border-color: transparent; padding-inline: 4px; }
+
+.overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--ink) 40%, transparent); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); z-index: 20; }
+.panel { background: var(--surface); border-radius: 14px; width: min(460px, 100%); max-height: 100%; overflow: auto; padding: 20px; display: grid; gap: 14px; border: 1px solid var(--line); }
+.panel h2 { font-family: var(--display); font-size: 22px; margin: 0; }
+.kind { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kind label { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px; cursor: pointer; display: grid; gap: 2px; }
+.kind input { position: absolute; opacity: 0; pointer-events: none; }
+.kind label:has(input:checked) { border-color: var(--plan); background: var(--plan-soft); }
+.kind label.k-open:has(input:checked) { border-color: var(--open); border-style: dashed; background: var(--open-soft); }
+.kind label:has(input:focus-visible) { outline: 2px solid var(--today); outline-offset: 2px; }
+.kind b { font-size: 13.5px; }
+.kind small { color: var(--muted); font-size: 12px; }
+.field { display: grid; gap: 4px; }
+.field > span { font-size: 12px; font-weight: 600; color: var(--muted); }
+.row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; }
+input[type=text], input[type=date], input[type=time], textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; min-width: 0; }
+textarea { resize: vertical; min-height: 54px; }
+.examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); }
+.examples button { font-size: 12px; border: 1px dashed var(--line); background: none; border-radius: 999px; padding: 3px 9px; color: var(--ink); }
+.pactions { display: flex; justify-content: flex-end; gap: 8px; }
+.err { color: var(--danger); font-size: 13px; margin: 0; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 30; max-width: calc(100% - 32px); }
+
+@media (max-width: 900px) {
+  .week { grid-template-columns: minmax(0, 1fr); }
+  .day { min-height: 0; }
+  .day.past { display: none; }
+  .row { grid-template-columns: 1fr 1fr; }
+  .row .field:first-child { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: transform .15s ease; }
+  .card:hover { transform: translateY(-1px); }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Draugų planai</h1>
+      <p class="sub">Pažymėk, ką veiki ar kada esi laisva, ir prisijunk prie draugų.</p>
+    </div>
+    <div class="nav">
+      <button class="btn icon" id="prev" aria-label="Ankstesnė savaitė">‹</button>
+      <div class="range" id="range"></div>
+      <button class="btn icon" id="next" aria-label="Kita savaitė">›</button>
+      <button class="btn" id="todayBtn">Ši savaitė</button>
+      <button class="btn primary" id="addBtn">+ Pridėti planą</button>
+      <button class="btn primary" id="loginBtn">Prisijungti su Google</button>
+      <button class="btn" id="logoutBtn">Atsijungti</button>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="chips" id="filters" role="group" aria-label="Kieno planus rodyti"></div>
+    <div class="legend">
+      <span><i class="sw plan"></i>Planas</span>
+      <span><i class="sw open"></i>Laisva, noriu kur nors eiti</span>
+      <span><i class="sw ok"></i>Patvirtinta kartu</span>
+      <span><i class="sw priv"></i>Privatu, mato tik tu</span>
+    </div>
+  </div>
+
+  <div class="notice" id="notice" hidden></div>
+  <div class="week" id="week" aria-live="polite"></div>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <form class="panel" id="form" autocomplete="off">
+    <h2 id="formTitle">Naujas planas</h2>
+    <div class="kind" id="kindBox">
+      <label><input type="radio" name="kind" id="kindPlan" value="plan" checked><b>Turiu planą</b><small>Pilatas, kinas, koncertas…</small></label>
+      <label class="k-open"><input type="radio" name="kind" id="kindOpen" value="open"><b>Esu laisva</b><small>Noriu kur nors nueiti</small></label>
+    </div>
+    <div class="examples" id="examples"><span>Greitai:</span></div>
+    <label class="field"><span>Kas?</span><input type="text" id="fTitle" maxlength="80" placeholder="Pvz. Pilatas po darbo"></label>
+    <div class="row">
+      <label class="field"><span>Diena</span><input type="date" id="fDate" required></label>
+      <label class="field"><span>Nuo</span><input type="time" id="fFrom"></label>
+      <label class="field"><span>Iki</span><input type="time" id="fTo"></label>
+    </div>
+    <label class="field"><span>Kur?</span><input type="text" id="fPlace" maxlength="80" placeholder="Pvz. Forum Cinemas"></label>
+    <label class="field"><span>Pastaba draugams</span><textarea id="fNote" maxlength="240" placeholder="Pvz. Dar yra 2 laisvos vietos, bilietas 12 €"></textarea></label>
+    <label class="privrow"><input type="checkbox" id="fPrivate"><span><b>Privatu</b><small>Šio plano nematys niekas, tik tu. Draugai negalės prie jo prisijungti.</small></span></label>
+    <p class="err" id="fErr" hidden></p>
+    <div class="pactions">
+      <button type="button" class="btn" id="cancel">Atšaukti</button>
+      <button type="submit" class="btn primary" id="save">Išsaugoti</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script type="module">
+// ================================================================
+// 1) ČIA ĮKLIJUOK SAVO FIREBASE KONFIGŪRACIJĄ (žr. README, 2 žingsnis)
+// ================================================================
+const firebaseConfig = {
+  apiKey: "ĮKLIJUOK_ČIA",
+  authDomain: "ĮKLIJUOK_ČIA",
+  projectId: "ĮKLIJUOK_ČIA",
+  storageBucket: "ĮKLIJUOK_ČIA",
+  messagingSenderId: "ĮKLIJUOK_ČIA",
+  appId: "ĮKLIJUOK_ČIA"
+};
+// ================================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const DAYS = ["Pirmadienis","Antradienis","Trečiadienis","Ketvirtadienis","Penktadienis","Šeštadienis","Sekmadienis"];
+const MONTHS = ["sausio","vasario","kovo","balandžio","gegužės","birželio","liepos","rugpjūčio","rugsėjo","spalio","lapkričio","gruodžio"];
+const $ = (id) => document.getElementById(id);
+
+const state = {
+  weekStart: mondayOf(new Date()),
+  events: [], joins: [], privEvents: [], people: {},
+  me: null, canWrite: false, filter: "all", loaded: false,
+};
+let fs = null, auth = null, unsubs = [];
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function mondayOf(d){ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const wd = (x.getDay()+6)%7; x.setDate(x.getDate()-wd); return x; }
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function rangeLabel(){
+  const a = state.weekStart, b = addDays(a,6);
+  if (a.getMonth() === b.getMonth()) return cap(MONTHS[a.getMonth()])+" "+a.getDate()+"–"+b.getDate()+" d.";
+  return cap(MONTHS[a.getMonth()])+" "+a.getDate()+" – "+MONTHS[b.getMonth()]+" "+b.getDate()+" d.";
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
+function notice(msg){ const n=$("notice"); if(!msg){ n.hidden=true; return; } n.textContent=msg; n.hidden=false; }
+
+function colorFor(id){ let h=0; for (const c of id) h=(h*31+c.charCodeAt(0))%360; return "hsl("+h+" 55% 50%)"; }
+function initialsAvatar(name, color){
+  const t = (name||"?").split(/\s+/).map(s=>s[0]||"").join("").slice(0,2).toUpperCase();
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44"><rect width="44" height="44" rx="22" fill="'+color+'"/><text x="22" y="28" font-family="sans-serif" font-size="17" font-weight="600" text-anchor="middle" fill="#fff">'+t.replace(/[<&>]/g,"")+'</text></svg>';
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+function prof(id){
+  const p = state.people[id] || {};
+  const color = colorFor(id || "x");
+  return { name: p.name || "", avatarUrl: p.photo || initialsAvatar(p.name, color), color };
+}
+const nameOf = (id) => id === state.me ? "Tu" : (prof(id).name || "Draugas");
+
+function joinersOf(evId){ return state.joins.filter(j => j.eventId === evId).map(j => j.user); }
+function visibleEvents(){
+  const me = state.me;
+  return state.events.concat(state.privEvents).filter(ev => {
+    if (ev.private) return state.filter === "all" || state.filter === "mine";
+    if (state.filter === "all") return true;
+    if (state.filter === "mine") return ev.owner === me || joinersOf(ev.id).includes(me);
+    return ev.owner === state.filter || joinersOf(ev.id).includes(state.filter);
+  });
+}
+
+function render(){
+  $("range").textContent = rangeLabel();
+  const ids = new Set();
+  if (state.me) ids.add(state.me);
+  state.events.forEach(e => e.owner && ids.add(e.owner));
+  state.joins.forEach(j => j.user && ids.add(j.user));
+
+  const f = $("filters"); f.replaceChildren();
+  const mk = (key, label, id) => {
+    const b = document.createElement("button");
+    b.className = "chip" + (id ? "" : " plain");
+    b.setAttribute("aria-pressed", String(state.filter === key));
+    if (id) b.append(avatar(prof(id)));
+    b.append(document.createTextNode(label));
+    b.onclick = () => { state.filter = key; render(); };
+    f.append(b);
+  };
+  if (state.me) {
+    mk("all","Visi");
+    mk("mine","Mano kalendorius");
+    [...ids].filter(id => id !== state.me).forEach(id => mk(id, prof(id).name || "Draugas", id));
+  }
+
+  const week = $("week"); week.replaceChildren();
+  const todayStr = ymd(new Date());
+  const evs = visibleEvents();
+  for (let i=0;i<7;i++){
+    const d = addDays(state.weekStart,i), ds = ymd(d);
+    const col = document.createElement("section");
+    col.className = "day" + (ds===todayStr ? " today" : "") + (ds<todayStr ? " past" : "");
+    col.setAttribute("aria-label", DAYS[i]+", "+MONTHS[d.getMonth()]+" "+d.getDate()+" d.");
+    const head = document.createElement("div"); head.className = "dhead";
+    const l = document.createElement("div");
+    l.innerHTML = '<div class="dname"></div><div class="dnum"></div>';
+    l.querySelector(".dname").textContent = (ds===todayStr ? "Šiandien · " : "") + DAYS[i];
+    l.querySelector(".dnum").textContent = d.getDate();
+    head.append(l);
+    if (state.canWrite && ds >= todayStr) {
+      const ab = document.createElement("button"); ab.className="add-day"; ab.textContent="+";
+      ab.setAttribute("aria-label","Pridėti planą: "+DAYS[i]);
+      ab.onclick = () => openForm(ds);
+      head.append(ab);
+    }
+    col.append(head);
+    const list = document.createElement("div"); list.className = "items";
+    const dayEvs = evs.filter(e => e.date === ds).sort((a,b) => (a.from||"99").localeCompare(b.from||"99"));
+    if (!dayEvs.length) {
+      const e = document.createElement("div"); e.className = "empty-day";
+      e.textContent = state.me && !state.loaded ? "Kraunama…" : "Planų nėra";
+      list.append(e);
+    }
+    dayEvs.forEach(ev => list.append(card(ev, ds < todayStr)));
+    col.append(list);
+    week.append(col);
+  }
+}
+
+function avatar(p){ const im = document.createElement("img"); im.className="av"; im.alt=""; im.src=p.avatarUrl; im.referrerPolicy="no-referrer"; im.style.borderColor = p.color; return im; }
+
+function card(ev, past){
+  const joiners = joinersOf(ev.id).filter(u => u !== ev.owner);
+  const isOpen = ev.kind === "open";
+  const confirmed = isOpen && joiners.length > 0;
+  const iJoined = joiners.includes(state.me);
+  const c = document.createElement("article");
+  c.className = "card" + (ev.private ? " priv" : isOpen ? (confirmed ? " confirmed" : " open") : "");
+  if (ev.private) { const t = document.createElement("span"); t.className = "tag priv"; t.textContent = "Privatu"; c.append(t); }
+  if (isOpen) { const t = document.createElement("span"); t.className = "tag " + (confirmed ? "ok" : "open"); t.textContent = confirmed ? "Patvirtinta" : "Laisva"; c.append(t); }
+  if (ev.from) { const tm = document.createElement("div"); tm.className = "ctime"; tm.textContent = ev.from + (ev.to ? "–"+ev.to : ""); c.append(tm); }
+  const ti = document.createElement("div"); ti.className = "ctitle"; ti.textContent = ev.title || (isOpen ? "Noriu kur nors nueiti" : "Planas"); c.append(ti);
+  if (ev.place || ev.note) { const m = document.createElement("div"); m.className = "cmeta"; m.textContent = [ev.place, ev.note].filter(Boolean).join(" · "); c.append(m); }
+  if (!ev.private) {
+    const ppl = document.createElement("div"); ppl.className = "people";
+    const st = document.createElement("div"); st.className = "stack";
+    [ev.owner, ...joiners].forEach(u => st.append(avatar(prof(u))));
+    const who = document.createElement("span"); who.className = "who";
+    const names = [nameOf(ev.owner), ...joiners.map(nameOf)];
+    who.textContent = names.length === 1 ? names[0] : names.slice(0,-1).join(", ")+" ir "+names[names.length-1];
+    ppl.append(st, who); c.append(ppl);
+  }
+  if (state.canWrite && !past) {
+    const a = document.createElement("div"); a.className = "acts";
+    if (ev.owner === state.me) {
+      const del = document.createElement("button"); del.className = "act del"; del.textContent = "Ištrinti";
+      del.onclick = () => confirmDelete(del, ev); a.append(del);
+    } else if (iJoined) {
+      const lv = document.createElement("button"); lv.className = "act ghost"; lv.textContent = "Atsisakyti";
+      lv.onclick = () => leave(ev, lv); a.append(lv);
+    } else {
+      const jn = document.createElement("button"); jn.className = "act join"; jn.textContent = isOpen ? "Einu kartu" : "Prisijungti";
+      jn.onclick = () => join(ev, jn); a.append(jn);
+    }
+    c.append(a);
+  }
+  return c;
+}
+
+const joinId = (evId, uid) => evId + "--" + uid;
+const privPath = () => "private/" + state.me + "/events";
+
+async function join(ev, btn){
+  btn.disabled = true;
+  try {
+    await setDoc(doc(fs, "joins", joinId(ev.id, state.me)), { eventId: ev.id, user: state.me, at: new Date().toISOString() });
+    toast(ev.kind === "open" ? "Patvirtinta – planas atsirado abiejų kalendoriuose" : "Prisijungei!");
+  } catch(e) { btn.disabled = false; failed(e); }
+}
+async function leave(ev, btn){
+  btn.disabled = true;
+  try { await deleteDoc(doc(fs, "joins", joinId(ev.id, state.me))); toast("Atsisakei"); }
+  catch(e){ btn.disabled = false; failed(e); }
+}
+async function confirmDelete(btn, ev){
+  if (!btn.dataset.armed) {
+    btn.dataset.armed = "1"; btn.textContent = "Tikrai ištrinti?";
+    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = "Ištrinti"; } }, 3500);
+    return;
+  }
+  btn.disabled = true;
+  try {
+    if (ev.private) await deleteDoc(doc(fs, privPath(), ev.id));
+    else {
+      await Promise.all(state.joins.filter(j => j.eventId === ev.id).map(j => deleteDoc(doc(fs, "joins", j.id))));
+      await deleteDoc(doc(fs, "events", ev.id));
+    }
+    toast("Ištrinta");
+  } catch(e) { btn.disabled = false; failed(e); }
+}
+function failed(e){
+  console.error(e);
+  if (e && e.code === "permission-denied") toast("Neturi teisės to daryti.");
+  else toast("Nepavyko išsaugoti. Bandyk dar kartą.");
+}
+
+// ----- forma -----
+const EXAMPLES = [
+  { label: "Pilatas po darbo", kind:"plan", title:"Pilatas", wd:2, from:"18:30", to:"19:30" },
+  { label: "Kinas penktadienį", kind:"plan", title:"Kinas", wd:4, from:"19:30" },
+  { label: "Koncertas šeštadienį", kind:"plan", title:"Koncertas", wd:5, from:"20:00" },
+  { label: "Laisvas sekmadienis", kind:"open", title:"Noriu kur nors nueiti", wd:6, from:"" },
+];
+EXAMPLES.forEach(x => {
+  const b = document.createElement("button"); b.type="button"; b.textContent = x.label;
+  b.onclick = () => {
+    $("fPrivate").checked = false; $("kindBox").classList.remove("locked");
+    $(x.kind === "open" ? "kindOpen" : "kindPlan").checked = true;
+    $("fTitle").value = x.title; $("fFrom").value = x.from; $("fTo").value = x.to || "";
+    let d = addDays(mondayOf(new Date()), x.wd);
+    if (ymd(d) < ymd(new Date())) d = addDays(d, 7);
+    $("fDate").value = ymd(d);
+  };
+  $("examples").append(b);
+});
+$("fPrivate").addEventListener("change", () => {
+  const p = $("fPrivate").checked;
+  if (p) $("kindPlan").checked = true;
+  $("kindBox").classList.toggle("locked", p);
+});
+function openForm(date){
+  $("form").reset(); $("fErr").hidden = true; $("kindBox").classList.remove("locked");
+  $("fDate").value = date || ymd(new Date());
+  $("overlay").hidden = false; $("fTitle").focus();
+}
+function closeForm(){ $("overlay").hidden = true; }
+$("addBtn").onclick = () => openForm();
+$("cancel").onclick = closeForm;
+$("overlay").addEventListener("click", e => { if (e.target === $("overlay")) closeForm(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("overlay").hidden) closeForm(); });
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const isPrivate = $("fPrivate").checked;
+  const kind = (!isPrivate && $("kindOpen").checked) ? "open" : "plan";
+  const title = $("fTitle").value.trim();
+  const err = $("fErr");
+  if (kind === "plan" && !title) { err.textContent = "Įrašyk, ką veiksi."; err.hidden = false; $("fTitle").focus(); return; }
+  if (!$("fDate").value) { err.textContent = "Pasirink dieną."; err.hidden = false; return; }
+  const data = {
+    owner: state.me, kind, title: title || "Noriu kur nors nueiti",
+    date: $("fDate").value, from: $("fFrom").value || "", to: $("fTo").value || "",
+    place: $("fPlace").value.trim(), note: $("fNote").value.trim(),
+    created: new Date().toISOString(),
+  };
+  $("save").disabled = true;
+  try {
+    await addDoc(collection(fs, isPrivate ? privPath() : "events"), data);
+    closeForm(); toast(isPrivate ? "Išsaugota privačiai – matai tik tu" : "Išsaugota – draugai jau mato");
+    const ws = mondayOf(new Date(data.date + "T12:00"));
+    if (+ws !== +state.weekStart) { state.weekStart = ws; render(); }
+  } catch(ex) { failed(ex); }
+  finally { $("save").disabled = false; }
+});
+
+$("prev").onclick = () => { state.weekStart = addDays(state.weekStart,-7); render(); };
+$("next").onclick = () => { state.weekStart = addDays(state.weekStart,7); render(); };
+$("todayBtn").onclick = () => { state.weekStart = mondayOf(new Date()); render(); };
+
+// ----- prisijungimas ir duomenys -----
+$("addBtn").hidden = true;
+$("logoutBtn").hidden = true;
+render();
+
+if (firebaseConfig.apiKey.includes("ĮKLIJUOK")) {
+  notice("Dar neįklijuota Firebase konfigūracija. Atidaryk index.html ir viršuje esančiame bloke firebaseConfig įklijuok savo projekto duomenis.");
+} else {
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app); fs = getFirestore(app);
+  $("loginBtn").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+    console.error(e);
+    toast(e.code === "auth/unauthorized-domain" ? "Šis adresas neleistas Firebase nustatymuose (Authorized domains)." : "Prisijungti nepavyko.");
+  });
+  $("logoutBtn").onclick = () => signOut(auth);
+  onAuthStateChanged(auth, (u) => {
+    unsubs.forEach(f => f()); unsubs = [];
+    state.events = []; state.joins = []; state.privEvents = []; state.people = {}; state.loaded = false;
+    state.me = u ? u.uid : null;
+    state.canWrite = false;
+    $("loginBtn").hidden = !!u; $("logoutBtn").hidden = !u; $("addBtn").hidden = true;
+    if (!u) { notice("Prisijunk su Google paskyra, kad matytum draugų planus."); render(); return; }
+    notice("");
+    start(u);
+  });
+}
+
+async function start(u){
+  try {
+    await setDoc(doc(fs, "users", u.uid), { name: u.displayName || "", photo: u.photoURL || "" });
+  } catch(e) {
+    if (e.code === "permission-denied") {
+      notice("Tavo paskyros (" + (u.email || "") + ") dar nėra draugų sąraše. Paprašyk kalendoriaus kūrėjos ją pridėti.");
+      state.loaded = true; render(); return;
+    }
+  }
+  state.canWrite = true; $("addBtn").hidden = false;
+  const onErr = (e) => { console.error(e); notice("Planų nepavyko įkelti. Atnaujink puslapį."); };
+  let got = { ev:false, jo:false };
+  const done = () => { if (got.ev && got.jo) state.loaded = true; };
+  unsubs.push(onSnapshot(collection(fs, "users"), s => { const p = {}; s.docs.forEach(d => p[d.id] = d.data()); state.people = p; render(); }, onErr));
+  unsubs.push(onSnapshot(collection(fs, "events"), s => { state.events = s.docs.map(d => ({ id: d.id, ...d.data() })); got.ev = true; done(); render(); }, onErr));
+  unsubs.push(onSnapshot(collection(fs, "joins"), s => { state.joins = s.docs.map(d => ({ id: d.id, ...d.data() })); got.jo = true; done(); render(); }, onErr));
+  unsubs.push(onSnapshot(collection(fs, privPath()), s => { state.privEvents = s.docs.map(d => ({ id: d.id, ...d.data(), private: true, owner: state.me })); render(); }, onErr));
+}
+</script>
+</body>
+</html>
