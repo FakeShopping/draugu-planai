@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Draugų planai</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='3' y='7' width='42' height='38' rx='10' fill='%23ff6b4a'/%3E%3Crect x='13' y='2' width='5' height='11' rx='2.5' fill='%231d2333'/%3E%3Crect x='30' y='2' width='5' height='11' rx='2.5' fill='%231d2333'/%3E%3Ccircle cx='19' cy='28' r='9' fill='%23ffd23f'/%3E%3Ccircle cx='29' cy='28' r='9' fill='%2322b8a6' fill-opacity='.9'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%2210%22%20fill%3D%22%23ff6b4a%22/%3E%20%3Crect%20x%3D%2213%22%20y%3D%222%22%20width%3D%225%22%20height%3D%2211%22%20rx%3D%222.5%22%20fill%3D%22%231d2333%22/%3E%20%3Crect%20x%3D%2230%22%20y%3D%222%22%20width%3D%225%22%20height%3D%2211%22%20rx%3D%222.5%22%20fill%3D%22%231d2333%22/%3E%20%3Crect%20x%3D%229%22%20y%3D%2228%22%20width%3D%2215%22%20height%3D%224.5%22%20rx%3D%222.25%22%20fill%3D%22%23fff%22/%3E%20%3Crect%20x%3D%2214.25%22%20y%3D%2222.75%22%20width%3D%224.5%22%20height%3D%2215%22%20rx%3D%222.25%22%20fill%3D%22%23fff%22/%3E%20%3Cpath%20d%3D%22M31%2020.5h4.5v19h-4.5v-13.2l-2.6%201.9-2.4-3.4z%22%20fill%3D%22%23ffd23f%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap">
 <style>
@@ -89,7 +89,7 @@ h1 .dot { color: var(--brand-a); }
 .mhead, .mgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .mhead div { padding: 8px 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
 .mhead div:nth-child(n+6) { color: var(--brand-a); }
-.cell { min-height: 112px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; display: flex; flex-direction: column; gap: 3px; min-width: 0; cursor: pointer; background: none; text-align: left; border-top: none; border-left: none; }
+.cell { position: relative; min-height: 112px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; display: flex; flex-direction: column; gap: 3px; min-width: 0; cursor: pointer; background: none; text-align: left; border-top: none; border-left: none; }
 .cell:nth-child(7n) { border-right: none; }
 .cell:hover { background: color-mix(in srgb, var(--brand-c) 6%, transparent); }
 .cell.other { background: color-mix(in srgb, var(--bg) 60%, transparent); }
@@ -98,6 +98,9 @@ h1 .dot { color: var(--brand-a); }
 .cell.sel { box-shadow: inset 0 0 0 2px var(--brand-c); }
 .num { font-family: var(--display); font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; }
 .cell.today .num { background: var(--today); color: #fff; }
+.cadd { position: absolute; top: 5px; right: 5px; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--brand-a); font-size: 17px; font-weight: 600; line-height: 1; display: grid; place-items: center; opacity: .55; padding: 0; }
+.cell:hover .cadd, .cell.sel .cadd, .cadd:focus-visible { opacity: 1; border-color: var(--brand-a); }
+.cadd:hover { background: var(--brand-a); color: #fff; }
 .mchip { display: block; font-size: 11.5px; line-height: 1.3; padding: 2px 6px; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); color: var(--ink); border-left: 3px solid var(--c); }
 .mchip b { font-weight: 600; color: var(--c); font-variant-numeric: tabular-nums; }
 .mchip.open { border: 1.5px dashed var(--open); background: color-mix(in srgb, var(--open) var(--tint), var(--surface)); }
@@ -141,6 +144,7 @@ h1 .dot { color: var(--brand-a); }
 .tag.ok { color: var(--c-food); }
 .tag.priv { color: var(--priv); }
 .tag.chat { color: var(--brand-c); }
+.tag.chat.new { background: var(--brand-a); border-color: var(--brand-a); color: #fff; }
 .people { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .stack { display: flex; }
 .stack .av { margin-left: -6px; }
@@ -181,31 +185,60 @@ textarea { resize: vertical; min-height: 54px; }
 .pactions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .err { color: var(--danger); font-size: 13px; margin: 0; }
 
-/* detail + chat */
-.detail { width: min(560px, 100%); }
-.dhero { --c: var(--c-other); border-radius: 12px; padding: 14px; background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-left: 5px solid var(--c); display: grid; gap: 6px; }
+/* detail drawer + chat */
+.drawer-bg { position: fixed; inset: 0; background: color-mix(in srgb, #0b0e16 40%, transparent); z-index: 20; display: flex; justify-content: flex-end; }
+.drawer { background: var(--surface); width: min(460px, 100%); height: 100%; display: flex; flex-direction: column; border-left: 1px solid var(--line); box-shadow: -12px 0 40px rgba(0,0,0,.18); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.dr-info { flex: none; max-height: 48%; overflow-y: auto; padding: 14px 16px 12px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.dr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.xbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 50%; width: 34px; height: 34px; font-size: 16px; line-height: 1; flex: none; }
+.dhero { --c: var(--c-other); border-radius: 12px; padding: 12px 14px; background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-left: 5px solid var(--c); display: grid; gap: 5px; }
 .dhero.open { border: 1.5px dashed var(--open); background: color-mix(in srgb, var(--open) var(--tint), var(--surface)); }
-.dhero.priv { --c: var(--priv); }
-.dline { color: var(--muted); }
+.dhero h2 { font-family: var(--display); font-size: 21px; margin: 0; overflow-wrap: anywhere; }
+.dline { color: var(--muted); font-size: 13.5px; }
 .dline strong { color: var(--ink); font-weight: 600; }
 .dacts { display: flex; gap: 8px; flex-wrap: wrap; }
 .act { font-weight: 600; border-radius: 8px; padding: 7px 13px; border: 1px solid var(--brand-c); background: var(--brand-c); color: #fff; }
 .act.joinopen { background: var(--open); border-color: var(--open); }
 .act.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .act.del { background: transparent; color: var(--danger); border-color: transparent; }
-.chat { border: 1px solid var(--line); border-radius: 12px; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
-.chat-h { padding: 9px 12px; font-weight: 600; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.dr-chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat-h { padding: 9px 16px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); }
 .chat-h small { font-weight: 400; color: var(--muted); }
-.msgs { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; max-height: 300px; min-height: 120px; overflow-y: auto; background: var(--bg); }
-.msg { display: flex; gap: 8px; align-items: flex-end; max-width: 88%; }
+.msgs { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--bg); }
+.msg { display: flex; gap: 8px; align-items: flex-end; max-width: 85%; }
 .msg.mine { align-self: flex-end; flex-direction: row-reverse; }
-.bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 12px 12px 12px 4px; padding: 6px 10px; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
-.msg.mine .bubble { background: color-mix(in srgb, var(--brand-c) 18%, var(--surface)); border-color: color-mix(in srgb, var(--brand-c) 40%, var(--line)); border-radius: 12px 12px 4px 12px; }
+.bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 6px 11px; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.msg.mine .bubble { background: color-mix(in srgb, var(--brand-c) 18%, var(--surface)); border-color: color-mix(in srgb, var(--brand-c) 40%, var(--line)); border-radius: 14px 14px 4px 14px; }
 .bmeta { font-size: 11px; color: var(--muted); display: block; margin-bottom: 1px; }
-.chat-empty { color: var(--muted); font-size: 13px; text-align: center; margin: auto; padding: 10px; }
-.chat form { display: flex; gap: 8px; padding: 8px; border-top: 1px solid var(--line); }
-.chat form input { flex: 1; }
-.chat-locked { padding: 12px; color: var(--muted); font-size: 13px; background: var(--bg); border-radius: 10px; }
+.chat-empty { color: var(--muted); font-size: 13px; text-align: center; margin: auto; padding: 16px; max-width: 300px; }
+.composer { display: flex; gap: 8px; align-items: flex-end; padding: 10px 12px; border-top: 1px solid var(--line); background: var(--surface); }
+.composer textarea { flex: 1; min-height: 40px; max-height: 120px; resize: none; border-radius: 20px; padding: 9px 14px; line-height: 1.35; }
+.sendbtn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--brand-a); color: #fff; font-size: 18px; flex: none; display: grid; place-items: center; }
+.sendbtn:disabled { opacity: .5; }
+.chat-locked { flex: 1; display: grid; place-items: center; text-align: center; color: var(--muted); padding: 24px; background: var(--bg); }
+
+/* notifications */
+.bellwrap { position: relative; }
+.bell { position: relative; width: 38px; height: 38px; padding: 0; display: grid; place-items: center; }
+.bell svg { width: 19px; height: 19px; }
+.badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--brand-a); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--bg); }
+.npanel { position: absolute; right: 0; top: calc(100% + 8px); width: min(360px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 14px 40px rgba(0,0,0,.18); z-index: 15; overflow: hidden; }
+.nhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.nhead b { font-family: var(--display); font-size: 16px; }
+.linkbtn { border: none; background: none; color: var(--brand-c); font-size: 12.5px; font-weight: 600; padding: 2px; }
+.nlist { max-height: 360px; overflow-y: auto; }
+.nitem { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; border: none; background: none; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.nitem:hover { background: var(--bg); }
+.nitem.unread { background: color-mix(in srgb, var(--brand-a) 8%, var(--surface)); }
+.nitem .av { width: 30px; height: 30px; }
+.ntext { flex: 1; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+.ntext small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+.nquote { display: block; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ndot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand-a); margin-top: 6px; flex: none; }
+.nempty { padding: 22px 14px; color: var(--muted); text-align: center; font-size: 13px; }
+.nfoot { padding: 10px 14px; font-size: 12.5px; color: var(--muted); display: grid; gap: 6px; }
+.nfoot .btn { justify-self: start; font-size: 12.5px; }
 
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 30; max-width: calc(100% - 32px); }
 
@@ -222,6 +255,10 @@ textarea { resize: vertical; min-height: 54px; }
   .period { min-width: 0; font-size: 18px; }
   .row { grid-template-columns: 1fr 1fr; }
   .row .field:first-child { grid-column: 1 / -1; }
+  .cadd { display: none; }
+  .cell.sel .cadd { display: grid; top: auto; bottom: 3px; right: 3px; width: 22px; height: 22px; font-size: 15px; }
+  .drawer { width: 100%; border-left: none; }
+  .npanel { position: fixed; left: 16px; right: 16px; width: auto; top: calc(70px + env(safe-area-inset-top, 0px)); }
 }
 @media (prefers-reduced-motion: no-preference) {
   .card { transition: transform .15s ease; }
@@ -237,8 +274,9 @@ textarea { resize: vertical; min-height: 54px; }
         <rect x="3" y="7" width="42" height="38" rx="10" fill="#ff6b4a"/>
         <rect x="13" y="2" width="5" height="11" rx="2.5" fill="#1d2333"/>
         <rect x="30" y="2" width="5" height="11" rx="2.5" fill="#1d2333"/>
-        <circle cx="19" cy="28" r="9" fill="#ffd23f"/>
-        <circle cx="29" cy="28" r="9" fill="#22b8a6" fill-opacity=".9"/>
+        <rect x="9" y="28" width="15" height="4.5" rx="2.25" fill="#fff"/>
+        <rect x="14.25" y="22.75" width="4.5" height="15" rx="2.25" fill="#fff"/>
+        <path d="M31 20.5h4.5v19h-4.5v-13.2l-2.6 1.9-2.4-3.4z" fill="#ffd23f"/>
       </svg>
       <div>
         <h1>Draugų planai<span class="dot">.</span></h1>
@@ -246,6 +284,17 @@ textarea { resize: vertical; min-height: 54px; }
       </div>
     </div>
     <div class="acts-top">
+      <div class="bellwrap" id="bellWrap" hidden>
+        <button class="btn bell" id="bellBtn" aria-label="Pranešimai" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="badge" id="badge" hidden></span>
+        </button>
+        <div class="npanel" id="npanel" hidden>
+          <div class="nhead"><b>Pranešimai</b><button class="linkbtn" id="readAll">Pažymėti visus perskaitytais</button></div>
+          <div class="nlist" id="nlist"></div>
+          <div class="nfoot" id="nfoot"></div>
+        </div>
+      </div>
       <button class="btn primary" id="addBtn">+ Pridėti planą</button>
       <button class="btn primary" id="loginBtn">Prisijungti su Google</button>
       <button class="btn" id="logoutBtn">Atsijungti</button>
@@ -302,12 +351,11 @@ textarea { resize: vertical; min-height: 54px; }
 </div>
 
 <!-- Veiklos detalės ir pokalbis -->
-<div class="overlay" id="detailOverlay" hidden>
-  <div class="panel detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
-    <div id="detailBody"></div>
-    <div id="chatBox"></div>
-    <div class="pactions"><button type="button" class="btn" id="closeDetail">Uždaryti</button></div>
-  </div>
+<div class="drawer-bg" id="detailOverlay" hidden>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="dr-info" id="detailBody"></div>
+    <div class="dr-chat" id="chatBox"></div>
+  </aside>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -327,7 +375,7 @@ const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, updateDoc, onSnapshot, getDocs, query, orderBy, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const DAYS = ["Pirmadienis","Antradienis","Trečiadienis","Ketvirtadienis","Penktadienis","Šeštadienis","Sekmadienis"];
 const DSHORT = ["Pr","An","Tr","Kt","Pn","Št","Sk"];
@@ -350,8 +398,9 @@ const state = {
   view: "month", cursor: new Date(), selected: null,
   events: [], joins: [], privEvents: [], people: {},
   me: null, canWrite: false, filter: "all", loaded: false,
-  detailId: null,
+  detailId: null, notifs: [],
 };
+const SESSION_START = new Date().toISOString();
 let fs = null, auth = null, unsubs = [], chatUnsub = null, chatFor = null;
 
 function pad(n){ return String(n).padStart(2,"0"); }
@@ -440,7 +489,7 @@ function renderMonth(){
   const grid = el("div","mgrid");
   for (let i=0; i<weeks*7; i++){
     const d = addDays(start, i), ds = ymd(d);
-    const cell = el("button","cell");
+    const cell = el("div","cell"); cell.tabIndex = 0; cell.setAttribute("role","button");
     if (d.getMonth() !== c.getMonth()) cell.classList.add("other");
     if (ds === todayStr) cell.classList.add("today");
     if (ds < todayStr) cell.classList.add("past");
@@ -460,6 +509,13 @@ function renderMonth(){
     dayEvs.slice(0,5).forEach(ev => { const i2 = el("i", ev.kind === "open" ? "open" : ""); i2.style.setProperty("--c", cvar(ev)); dots.append(i2); });
     cell.append(dots);
     cell.onclick = () => { state.selected = ds; render(); };
+    cell.onkeydown = (e) => { if (e.target === cell && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); cell.click(); } };
+    if (state.canWrite && ds >= todayStr) {
+      const add = el("button","cadd","+"); add.type = "button";
+      add.setAttribute("aria-label","Pridėti planą: " + longDate(ds));
+      add.onclick = (e) => { e.stopPropagation(); state.selected = ds; openForm(ds); };
+      cell.append(add);
+    }
     grid.append(cell);
   }
   box.append(head, grid);
@@ -510,7 +566,10 @@ function card(ev){
   if (ev.private) top.append(el("span","tag priv","Privatu"));
   else if (isOpen) top.append(el("span","tag " + (joiners.length ? "ok" : "open"), joiners.length ? "Patvirtinta" : "Laisva"));
   else top.append(el("span","tag cat", catOf(ev.cat).label));
-  if (!ev.private && joiners.length && isParticipant(ev)) top.append(el("span","tag chat","Pokalbis"));
+  if (!ev.private && joiners.length && isParticipant(ev)) {
+    const unread = state.notifs.some(n => !n.read && n.eventId === ev.id && n.type === "msg");
+    top.append(el("span","tag chat" + (unread ? " new" : ""), unread ? "Nauja žinutė" : "Pokalbis"));
+  }
   c.append(top, el("div","ctitle", ev.title));
   if (ev.place) c.append(el("div","cmeta", ev.place));
   if (!ev.private) {
@@ -525,12 +584,11 @@ function card(ev){
 }
 
 // ---------- detail + chat ----------
-function openDetail(id){ state.detailId = id; $("detailOverlay").hidden = false; renderDetail(); }
+function openDetail(id){ state.detailId = id; $("detailOverlay").hidden = false; closeNotifs(); renderDetail(); markEventRead(id); }
 function closeDetail(){
   state.detailId = null; $("detailOverlay").hidden = true;
   if (chatUnsub) { chatUnsub(); chatUnsub = null; chatFor = null; }
 }
-$("closeDetail").onclick = closeDetail;
 $("detailOverlay").addEventListener("click", e => { if (e.target === $("detailOverlay")) closeDetail(); });
 
 function renderDetail(){
@@ -543,12 +601,15 @@ function renderDetail(){
 
   const hero = el("div","dhero" + (ev.private ? " priv" : isOpen ? " open" : ""));
   hero.style.setProperty("--c", cvar(ev));
+  const drTop = el("div","dr-top");
   const top = el("div","ctop");
   if (ev.private) top.append(el("span","tag priv","Privatu"));
   else if (isOpen) top.append(el("span","tag " + (joiners.length ? "ok" : "open"), joiners.length ? "Patvirtinta" : "Laisva, noriu kur nors eiti"));
   top.append(el("span","tag cat", catOf(ev.cat).label));
   const h = el("h2", null, ev.title); h.id = "dTitle";
-  hero.append(top, h);
+  const x = el("button","xbtn","✕"); x.setAttribute("aria-label","Uždaryti"); x.onclick = closeDetail;
+  drTop.append(top, x);
+  hero.append(drTop, h);
   const line = (label, val) => { if (!val) return; const p = el("div","dline"); p.append(document.createTextNode(label + " ")); p.append(el("strong", null, val)); hero.append(p); };
   line("Kada:", cap(longDate(ev.date)) + (ev.from ? ", " + ev.from + (ev.to ? "–" + ev.to : "") : ""));
   line("Kur:", ev.place);
@@ -581,34 +642,40 @@ function renderDetail(){
 
 function renderChatShell(ev, joiners){
   const box = $("chatBox");
-  if (ev.private) { box.replaceChildren(); stopChat(); return; }
-  if (!joiners.length) {
-    stopChat();
-    box.replaceChildren(el("div","chat-locked", ev.owner === state.me
-      ? "Kai kas nors prisijungs, čia atsiras pokalbis, kuriame galėsite aptarti laiką ir vietą."
-      : "Prisijunk prie veiklos, ir galėsite pasikalbėti apie laiką, vietą ir kitas detales."));
+  const locked = (msg) => { stopChat(); box.replaceChildren(el("div","chat-locked", msg)); };
+  if (ev.private) return locked("Tai privatus planas – jį matai tik tu.");
+  if (!joiners.length) return locked(ev.owner === state.me
+    ? "Kai kas nors prisijungs, čia atsiras pokalbis, kuriame galėsite aptarti laiką ir vietą. Gausi pranešimą."
+    : "Prisijunk prie veiklos, ir galėsite pasikalbėti apie laiką, vietą ir kitas detales.");
+  if (!isParticipant(ev)) return locked("Pokalbis matomas tik dalyviams. Prisijunk, kad galėtum jame dalyvauti.");
+  if (chatFor === ev.id && box.querySelector(".chat")) {
+    const sm = box.querySelector(".chat-h small"); if (sm) sm.textContent = (joiners.length + 1) + " dalyviai";
     return;
   }
-  if (!isParticipant(ev)) {
-    stopChat();
-    box.replaceChildren(el("div","chat-locked","Pokalbis matomas tik dalyviams. Prisijunk, kad galėtum jame dalyvauti."));
-    return;
-  }
-  if (chatFor === ev.id && box.querySelector(".chat")) return;
   stopChat();
   const chat = el("div","chat");
   const hdr = el("div","chat-h"); hdr.append(el("span", null, "Pokalbis"), el("small", null, (joiners.length + 1) + " dalyviai"));
   const msgs = el("div","msgs"); msgs.id = "msgs";
   msgs.append(el("div","chat-empty","Kraunama…"));
-  const form = el("form"); const inp = el("input"); inp.type = "text"; inp.id = "msgInput"; inp.maxLength = 1000; inp.placeholder = "Rašyk žinutę…"; inp.setAttribute("aria-label","Žinutė");
-  const send = el("button","btn primary","Siųsti"); send.type = "submit";
+  const form = el("form","composer");
+  const inp = el("textarea"); inp.id = "msgInput"; inp.rows = 1; inp.maxLength = 1000; inp.placeholder = "Rašyk žinutę…"; inp.setAttribute("aria-label","Žinutė");
+  const send = el("button","sendbtn","➤"); send.type = "submit"; send.setAttribute("aria-label","Siųsti");
+  const grow = () => { inp.style.height = "auto"; inp.style.height = Math.min(120, inp.scrollHeight) + "px"; };
+  inp.addEventListener("input", grow);
+  inp.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
   form.append(inp, send);
   form.onsubmit = async (e) => {
     e.preventDefault();
     const text = inp.value.trim(); if (!text) return;
     send.disabled = true;
-    try { await addDoc(collection(fs, "events", ev.id, "messages"), { user: state.me, text, at: new Date().toISOString() }); inp.value = ""; }
-    catch(err) { failed(err); }
+    try {
+      const at = new Date().toISOString();
+      await addDoc(collection(fs, "events", ev.id, "messages"), { user: state.me, text, at });
+      inp.value = ""; grow();
+      const cur = findEvent(ev.id) || ev;
+      const others = [cur.owner, ...joinersOf(cur.id)].filter((u, i, arr) => u && u !== state.me && arr.indexOf(u) === i);
+      others.forEach(u => setDoc(doc(fs, "notifs", u, "items", "msg-" + cur.id), { type: "msg", from: state.me, eventId: cur.id, title: cur.title, text: text.slice(0, 140), at, read: false }).catch(console.error));
+    } catch(err) { failed(err); }
     finally { send.disabled = false; inp.focus(); }
   };
   chat.append(hdr, msgs, form);
@@ -639,7 +706,9 @@ const privPath = () => "private/" + state.me + "/events";
 async function join(ev, btn){
   btn.disabled = true;
   try {
-    await setDoc(doc(fs, "joins", joinId(ev.id, state.me)), { eventId: ev.id, user: state.me, at: new Date().toISOString() });
+    const at = new Date().toISOString();
+    await setDoc(doc(fs, "joins", joinId(ev.id, state.me)), { eventId: ev.id, user: state.me, at });
+    setDoc(doc(fs, "notifs", ev.owner, "items", "join-" + ev.id + "-" + state.me), { type: "join", from: state.me, eventId: ev.id, title: ev.title, text: "", at, read: false }).catch(console.error);
     toast("Prisijungei! Aptarkite detales pokalbyje.");
     setTimeout(() => $("msgInput") && $("msgInput").focus(), 400);
   } catch(e) { btn.disabled = false; failed(e); }
@@ -736,7 +805,7 @@ $("cancel").onclick = closeForm;
 $("formOverlay").addEventListener("click", e => { if (e.target === $("formOverlay")) closeForm(); });
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  if (!$("formOverlay").hidden) closeForm(); else if (!$("detailOverlay").hidden) closeDetail();
+  if (!$("formOverlay").hidden) closeForm(); else if (!$("detailOverlay").hidden) closeDetail(); else closeNotifs();
 });
 
 $("form").addEventListener("submit", async (e) => {
@@ -781,6 +850,67 @@ $("todayBtn").onclick = () => { state.cursor = new Date(); state.selected = ymd(
 $("vMonth").onclick = () => { state.view = "month"; state.cursor = parse(state.selected); render(); };
 $("vWeek").onclick = () => { state.view = "week"; state.cursor = parse(state.selected); render(); };
 
+// ---------- notifications ----------
+function timeAgo(iso){
+  const m = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return "ką tik"; if (m < 60) return m + " min. prieš";
+  const h = Math.round(m / 60); if (h < 24) return h + " val. prieš";
+  const t = new Date(iso); return MONTHS_G[t.getMonth()] + " " + t.getDate() + " d.";
+}
+function notifText(n){
+  const who = prof(n.from).name || "Draugas";
+  return n.type === "join" ? who + " prisijungė prie „" + n.title + "“" : who + " parašė pokalbyje „" + n.title + "“";
+}
+function renderNotifs(){
+  const unread = state.notifs.filter(n => !n.read).length;
+  const badge = $("badge"); badge.hidden = !unread; badge.textContent = unread > 9 ? "9+" : unread;
+  document.title = (unread ? "(" + unread + ") " : "") + "Draugų planai";
+  const list = $("nlist"); list.replaceChildren();
+  if (!state.notifs.length) list.append(el("div","nempty","Kol kas pranešimų nėra. Čia matysi, kai kas nors prisijungs prie tavo veiklos ar parašys žinutę."));
+  state.notifs.forEach(n => {
+    const b = el("button","nitem" + (n.read ? "" : " unread"));
+    const tx = el("div","ntext", notifText(n));
+    if (n.type === "msg" && n.text) tx.append(el("span","nquote", "„" + n.text + "“"));
+    tx.append(el("small", null, timeAgo(n.at)));
+    b.append(avatar(n.from), tx);
+    if (!n.read) b.append(el("span","ndot"));
+    b.onclick = () => { if (findEvent(n.eventId)) openDetail(n.eventId); else { toast("Šis planas jau ištrintas."); markRead([n]); } };
+    list.append(b);
+  });
+  const foot = $("nfoot"); foot.replaceChildren();
+  if (!("Notification" in window)) foot.append(document.createTextNode("Ši naršyklė nepalaiko pranešimų darbalaukyje."));
+  else if (Notification.permission === "granted") foot.append(document.createTextNode("Naršyklės pranešimai įjungti – matysi juos, kol kalendorius atidarytas kortelėje."));
+  else if (Notification.permission === "denied") foot.append(document.createTextNode("Naršyklės pranešimai užblokuoti. Juos gali įjungti naršyklės adreso juostoje, prie spynelės."));
+  else {
+    foot.append(document.createTextNode("Gauk pranešimą, net kai kalendoriaus kortelė yra fone."));
+    const en = el("button","btn","Įjungti naršyklės pranešimus");
+    en.onclick = () => Notification.requestPermission().then(renderNotifs);
+    foot.append(en);
+  }
+}
+function openNotifs(){ $("npanel").hidden = false; $("bellBtn").setAttribute("aria-expanded","true"); renderNotifs(); }
+function closeNotifs(){ $("npanel").hidden = true; $("bellBtn").setAttribute("aria-expanded","false"); }
+$("bellBtn").onclick = (e) => { e.stopPropagation(); $("npanel").hidden ? openNotifs() : closeNotifs(); };
+document.addEventListener("click", (e) => { if (!$("npanel").hidden && !$("bellWrap").contains(e.target)) closeNotifs(); });
+async function markRead(items){
+  const todo = items.filter(n => !n.read); if (!todo.length) return;
+  const batch = writeBatch(fs);
+  todo.forEach(n => batch.update(doc(fs, "notifs", state.me, "items", n.id), { read: true }));
+  try { await batch.commit(); } catch(e) { console.error(e); }
+}
+function markEventRead(evId){ markRead(state.notifs.filter(n => n.eventId === evId)); }
+$("readAll").onclick = () => markRead(state.notifs);
+function announce(n){
+  if (n.eventId === state.detailId && !document.hidden) { markRead([n]); return; }
+  const text = notifText(n);
+  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+    try {
+      const nt = new Notification("Draugų planai", { body: text + (n.type === "msg" && n.text ? "\n" + n.text : ""), tag: n.id, icon: document.querySelector('link[rel="icon"]').href });
+      nt.onclick = () => { window.focus(); openDetail(n.eventId); nt.close(); };
+    } catch(e) { console.error(e); }
+  } else toast(text);
+}
+
 // ---------- auth + data ----------
 $("addBtn").hidden = true;
 $("logoutBtn").hidden = true;
@@ -797,10 +927,10 @@ if (firebaseConfig.apiKey.includes("ĮKLIJUOK")) {
   });
   $("logoutBtn").onclick = () => signOut(auth);
   onAuthStateChanged(auth, (u) => {
-    unsubs.forEach(f => f()); unsubs = []; closeDetail();
+    unsubs.forEach(f => f()); unsubs = []; closeDetail(); closeNotifs(); state.notifs = [];
     state.events = []; state.joins = []; state.privEvents = []; state.people = {}; state.loaded = false;
     state.me = u ? u.uid : null; state.canWrite = false;
-    $("loginBtn").hidden = !!u; $("logoutBtn").hidden = !u; $("addBtn").hidden = true;
+    $("loginBtn").hidden = !!u; $("logoutBtn").hidden = !u; $("addBtn").hidden = true; $("bellWrap").hidden = true;
     if (!u) { notice("Prisijunk su Google paskyra, kad matytum draugų planus."); render(); return; }
     notice(""); start(u);
   });
@@ -814,13 +944,21 @@ async function start(u){
       state.loaded = true; render(); return;
     }
   }
-  state.canWrite = true; $("addBtn").hidden = false;
+  state.canWrite = true; $("addBtn").hidden = false; $("bellWrap").hidden = false; renderNotifs();
   const onErr = (e) => { console.error(e); notice("Planų nepavyko įkelti. Atnaujink puslapį."); };
   const got = { ev:false, jo:false };
   const done = () => { if (got.ev && got.jo) state.loaded = true; };
   unsubs.push(onSnapshot(collection(fs, "users"), s => { const p = {}; s.docs.forEach(d => p[d.id] = d.data()); state.people = p; render(); }, onErr));
   unsubs.push(onSnapshot(collection(fs, "events"), s => { state.events = s.docs.map(d => ({ id: d.id, ...d.data() })); got.ev = true; done(); render(); }, onErr));
   unsubs.push(onSnapshot(collection(fs, "joins"), s => { state.joins = s.docs.map(d => ({ id: d.id, ...d.data() })); got.jo = true; done(); render(); }, onErr));
+  unsubs.push(onSnapshot(query(collection(fs, "notifs", state.me, "items"), orderBy("at", "desc"), limit(50)), s => {
+    state.notifs = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    s.docChanges().forEach(ch => {
+      const n = { id: ch.doc.id, ...ch.doc.data() };
+      if ((ch.type === "added" || ch.type === "modified") && !n.read && n.from !== state.me && n.at > SESSION_START) announce(n);
+    });
+    renderNotifs(); render();
+  }, onErr));
   unsubs.push(onSnapshot(collection(fs, privPath()), s => { state.privEvents = s.docs.map(d => ({ id: d.id, ...d.data(), private: true, owner: state.me })); render(); }, onErr));
 }
 </script>
